@@ -1,0 +1,114 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { BrainCircuit, Flame, House, LayoutDashboard, Menu, Rocket, X, Zap } from "lucide-react";
+import { useProgress } from "./ProgressProvider";
+import { rankFor } from "@/lib/gamification";
+
+const LINKS = [
+  { href: "/", label: "Home", icon: House },
+  { href: "/#modules", label: "Modules", icon: Rocket },
+  { href: "/dashboard", label: "My Build", icon: LayoutDashboard },
+];
+
+export default function Header() {
+  const pathname = usePathname();
+  const { state } = useProgress();
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => setOpen(false), [pathname]);
+
+  const xp = state?.learner.xp ?? 0;
+  const rank = rankFor(xp);
+
+  return (
+    <header className="sticky top-0 z-50 border-b-2 border-ink bg-paper/95 backdrop-blur-sm">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <Link href="/" className="group flex items-center gap-2.5" aria-label="NEURO//HIGH home">
+          <span className="grid size-9 place-items-center rounded-xl border-2 border-ink bg-vio shadow-[2.5px_2.5px_0_#171321] transition-transform group-hover:-rotate-6">
+            <BrainCircuit className="size-5 text-white" strokeWidth={2.4} />
+          </span>
+          <span className="font-display text-lg font-extrabold tracking-tight text-ink">
+            NEURO<span className="text-vio">//</span>HIGH
+          </span>
+        </Link>
+
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          {LINKS.map((l) => {
+            const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href.replace("/#modules", "/learn"));
+            return (
+              <Link
+                key={l.label}
+                href={l.href}
+                className={`rounded-lg px-3 py-1.5 font-mono text-xs font-bold uppercase tracking-wider transition-colors ${
+                  active ? "bg-ink text-paper" : "text-ink/70 hover:bg-ink/5 hover:text-ink"
+                }`}
+              >
+                {l.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center gap-2">
+          {state && (
+            <Link
+              href="/dashboard"
+              className="chip hidden bg-sun !py-1.5 text-ink transition-transform hover:-rotate-2 sm:inline-flex"
+              title={`Rank: ${rank.name}`}
+            >
+              <Zap className="size-3.5" strokeWidth={2.6} />
+              {xp.toLocaleString()} XP
+              {state.learner.streak > 1 && (
+                <span className="flex items-center gap-0.5 border-l-2 border-ink/20 pl-1.5">
+                  <Flame className="size-3.5 text-coral" strokeWidth={2.6} />
+                  {state.learner.streak}
+                </span>
+              )}
+            </Link>
+          )}
+          <button
+            className="btn btn-ghost !px-3 md:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label="Toggle menu"
+          >
+            {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden border-t-2 border-ink bg-cream md:hidden"
+            aria-label="Mobile"
+          >
+            <div className="flex flex-col gap-1 p-3">
+              {LINKS.map((l) => (
+                <Link
+                  key={l.label}
+                  href={l.href}
+                  className="flex items-center gap-2 rounded-lg px-3 py-2.5 font-mono text-sm font-bold uppercase tracking-wider text-ink hover:bg-ink/5"
+                >
+                  <l.icon className="size-4" /> {l.label}
+                </Link>
+              ))}
+              {state && (
+                <div className="mt-1 flex items-center gap-2 px-3 py-2 font-mono text-xs uppercase tracking-wider text-ink/60">
+                  <Zap className="size-4 text-vio" /> {xp} XP — Rank: {rank.name}
+                </div>
+              )}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}
