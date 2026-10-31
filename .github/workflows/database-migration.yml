@@ -25,4 +25,4 @@ jobs:
       - name: Apply migration to Neon
         run: npx drizzle-kit migrate
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }
