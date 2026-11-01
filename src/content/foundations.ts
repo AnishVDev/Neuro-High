@@ -308,7 +308,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         heading: "Tokens: the building blocks of AI text",
         body: [
           "Language models don't read text letter by letter or always word by word. They work with tokens, which are chunks of text. A token might be a whole word like \"the,\" part of a word like \"believ,\" a number, or a punctuation mark. Your message is split into tokens, each token is turned into numbers, and those numbers pass through a very large neural network.",
-          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none.",
+          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none. (These numbers are just an illustration.)",
         ],
       },
       {
@@ -414,8 +414,8 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         q: "Which sentence best describes machine learning?",
         options: [
           "Computers following hand-written rules perfectly",
-          "Computers learning patterns from data that is given to it",
-          "Computers copying a human's brain",
+          "Computers learning patterns from examples instead of being given every rule",
+          "Computers copying human brains exactly",
           "Computers searching the internet very quickly",
         ],
         answer: 1,
@@ -425,9 +425,9 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         q: "A model trained on 2 million photos of cities does poorly on photos of the countryside. What's the most useful question to ask?",
         options: [
           "Was the model turned off and on again?",
-          "What was the model trained on?",
+          "What was it trained on?",
           "Is the model feeling okay?",
-          "What was the resolution of the data set?",
+          "How big is the model's screen?",
         ],
         answer: 1,
         explain: "A model reflects its training data. It's most likely to struggle with the kinds of examples it didn't see during training.",
@@ -437,8 +437,8 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         options: [
           "Studying by memorizing last year's exam answers",
           "Studying with flashcards",
-          "Having a cheat sheet during the test",
-          "Studying with peers",
+          "A computer virus",
+          "Upgrading your computer's graphics card",
         ],
         answer: 0,
         explain: "An overfit model does great on the examples it trained on but poorly on new ones, like someone who memorized answers without learning the material.",
@@ -458,7 +458,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
           "Use only part of it",
         ],
         answer: 1,
-        explain: "At the end of the day, chatbots are probabilistic. Made-up citations can look exactly like real ones. Always check a source before you rely on it.",
+        explain: "Made-up citations can look exactly like real ones. Always check a source before you rely on it.",
       },
       {
         q: "Why is \"narrow AI\" a good description of most AI systems today?",
@@ -469,7 +469,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
           "They only know a few words",
         ],
         answer: 1,
-        explain: "Today's AI systems can be extremely good at the tasks they were built for, but none can fully learn and understand a broad range of topics the way a person can.",
+        explain: "Today's AI systems can be extremely good at the tasks they were built for, but none can learn and understand anything the way a person can.",
       },
     ],
   },
