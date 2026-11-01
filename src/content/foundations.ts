@@ -7,22 +7,22 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
     index: 0,
     kind: "lesson",
     title: "It's Not Magic, It's Math",
-    subtitle: "What AI actually is (and what it definitely is not)",
-    hook: "Forget the movies. No robot is plotting anything. Here's what AI really is — and why it's already making decisions about you every single day.",
+    subtitle: "What AI actually is (and what it definitely isn't)",
+    hook: "Forget the movies, no robot is plotting anything. Here's what AI really is, and why it's already making decisions about you every single day.",
     minutes: 6,
     xp: 120,
     blocks: [
       {
         type: "lead",
-        text: "Every time your phone unlocks with your face, Spotify builds a playlist you actually like, or Gmail finishes your sentence — that's AI. Not a brain. Not a person. A program that learned patterns from massive piles of examples.",
+        text: "Every time your phone unlocks with your face, Spotify builds a playlist you actually like, or Gmail finishes your sentence, that's AI. It isn't a a brain or person, it's program that has learned patterns from massive piles of examples.",
       },
       {
         type: "text",
         heading: "Regular code vs. AI",
         kicker: "The one idea that unlocks everything",
         body: [
-          "A normal program is a recipe: a human writes exact rules — IF the email contains 'FREE MONEY!!!', THEN mark it spam. The computer follows orders perfectly and thinks about nothing.",
-          "AI flips that. Instead of writing the rules, humans show the computer thousands of examples — spam and not-spam — and the machine figures out the rules by itself. That process is called machine learning, and it's the engine under almost every AI you've ever used.",
+          "A normal program is like a recipe: a human writes exact rules like: IF the email contains 'FREE MONEY!!!', THEN mark it spam. The computer follows orders perfectly and thinks about nothing.",
+          "AI changes that. Instead of writing the rules, humans show the computer thousands of examples of spam emails and not-spam emails. The machine figures out the rules by itself. That process is called machine learning, and it's the engine under almost every AI you've ever used.",
         ],
       },
       {
@@ -30,7 +30,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         heading: "Same problem, two approaches",
         weak: {
           label: "Hand-written rules",
-          text: "IF message has the word 'winner' → spam. (Scammers switch to 'w1nner' the next day. You rewrite the rules forever. You lose.)",
+          text: "IF message has the word 'winner' → spam. (Scammers will switch to 'w1nner' the next day. You have to manually rewrite the rules forever which is impossible.)",
         },
         strong: {
           label: "Learned from examples",
