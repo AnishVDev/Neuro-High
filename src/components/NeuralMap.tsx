@@ -171,9 +171,8 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </p>
           </div>
 
-          {/* Small NOVA briefing */}
           {!compact && (
-            <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
+            <div className="flex items-center gap-3 self-center rounded-xl border-2 border-ink bg-white p-2 shadow-[3px_3px_0_#171321]">
               <Image
                 src="/img/nova-bot.png"
                 alt="NOVA, your AI copilot"
@@ -181,11 +180,14 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                 height={56}
                 className="size-14 shrink-0 rounded-lg border-2 border-ink bg-cream object-cover"
               />
+          
               <div className="min-w-0">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-coral">
                   NOVA // field note
                 </p>
-                <p className="mt-1 text-xs leading-snug text-ink/75">{novaHint}</p>
+                <p className="mt-1 text-xs leading-snug text-ink/75">
+                  {novaHint}
+                </p>
               </div>
             </div>
           )}
