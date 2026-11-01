@@ -87,6 +87,11 @@ export default function DashboardClient() {
         </div>
       </motion.div>
 
+      {/* neural map */}
+      <div className="mt-8">
+        <NeuralMap />
+      </div>
+
       {/* continue */}
       {nextUp && done > 0 && (
         <Link
