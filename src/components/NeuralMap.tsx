@@ -1,14 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useId, useMemo, useState, type CSSProperties } from "react";
 import {
+  ArrowDown,
   ArrowRight,
   BrainCircuit,
   Check,
-  Flame,
   Skull,
   Sparkles,
   Zap,
@@ -21,514 +19,705 @@ const INK = "#171321";
 const LIME = "#C6F32E";
 const SUN = "#FFD645";
 
-const SVG_W = 900;
-const SVG_H = 520;
-const COL_CENTERS = [150, 450, 750];
-
-function rowYs(count: number): number[] {
-  const top = 115;
-  const bottom = 455;
-  if (count <= 1) return [(top + bottom) / 2];
-  return Array.from(
-    { length: count },
-    (_, i) => top + (i * (bottom - top)) / (count - 1),
-  );
-}
-
 export default function NeuralMap({ compact = false }: { compact?: boolean }) {
-  const { state, isCompleted, loading } = useProgress();
+  const { state, loading, isCompleted } = useProgress();
+  const titleId = useId();
+
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
-
-  const xp = state?.learner.xp ?? 0;
-  const streak = state?.learner.streak ?? 1;
-  const badgeCount = state?.badges.length ?? 0;
-  const rank = rankFor(xp);
-  const upcoming = nextRank(xp);
-
-  const rankPct = upcoming
-    ? Math.min(
-        100,
-        Math.max(
-          0,
-          Math.round(((xp - rank.minXp) / (upcoming.minXp - rank.minXp)) * 100),
-        ),
-      )
-    : 100;
+  const [focusedSlug, setFocusedSlug] = useState<string | null>(null);
 
   const layers = useMemo(
     () =>
-      MODULES.map((mod, colIdx) => {
-        const list = lessonsOf(mod.slug);
-        const ys = rowYs(list.length);
-        const nodes = list.map((lesson, rowIdx) => ({
+      MODULES.map((mod) => {
+        const nodes = lessonsOf(mod.slug).map((lesson) => ({
           lesson,
           done: isCompleted(lesson.slug),
-          x: COL_CENTERS[colIdx] ?? 450,
-          y: ys[rowIdx] ?? 260,
         }));
-        const clearedCount = nodes.filter((n) => n.done).length;
+
+        const count = nodes.filter((node) => node.done).length;
+
         return {
           mod,
-          colIdx,
-          x: COL_CENTERS[colIdx] ?? 450,
           nodes,
-          clearedCount,
-          isComplete: nodes.length > 0 && clearedCount === nodes.length,
+          count,
+          full: nodes.length > 0 && count === nodes.length,
         };
       }),
     [isCompleted],
   );
 
-  const allNodes = useMemo(
-    () =>
-      layers.flatMap((l) =>
-        l.nodes.map((n) => ({
-          ...n,
-          modTitle: l.mod.title,
-          modCode: l.mod.codename,
-          modColor: l.mod.color,
-        })),
-      ),
-    [layers],
+  const allNodes = layers.flatMap((layer) =>
+    layer.nodes.map((node) => ({
+      ...node,
+      moduleTitle: layer.mod.title,
+      moduleColor: layer.mod.color,
+    })),
   );
 
-  const totalCount = allNodes.length;
-  const clearedCount = allNodes.filter((n) => n.done).length;
-  const integrity = totalCount
-    ? Math.round((clearedCount / totalCount) * 100)
-    : 0;
+  const total = allNodes.length;
+  const cleared = allNodes.filter((node) => node.done).length;
+  const integrity = total ? Math.round((cleared / total) * 100) : 0;
 
-  const nextUp = loading ? undefined : allNodes.find((n) => !n.done);
-  const activeNode =
-    allNodes.find((n) => n.lesson.slug === hoveredSlug) ??
-    nextUp ??
-    allNodes[0];
+  const nextNode = loading
+    ? undefined
+    : allNodes.find((node) => !node.done);
 
-  // Build clean curved neural connections between adjacent columns
-  const synapses = useMemo(() => {
-    return layers.slice(0, -1).flatMap((layer, li) => {
-      const nextLayer = layers[li + 1];
-      const midX = (layer.x + nextLayer.x) / 2;
+  const activeSlug = focusedSlug ?? hoveredSlug;
+  const preview =
+    allNodes.find((node) => node.lesson.slug === activeSlug) ??
+    nextNode ??
+    allNodes[allNodes.length - 1];
 
-      return layer.nodes.flatMap((fromNode, fi) =>
-        nextLayer.nodes
-          .filter((_, ti) => Math.abs(ti - fi) <= 1)
-          .map((toNode) => {
-            const bothDone = fromNode.done && toNode.done;
-            const oneDone = fromNode.done || toNode.done;
-            const isHovered =
-              hoveredSlug === fromNode.lesson.slug ||
-              hoveredSlug === toNode.lesson.slug;
+  const xp = state?.learner.xp ?? 0;
+  const rank = rankFor(xp);
+  const upcomingRank = nextRank(xp);
 
-            return {
-              id: `${fromNode.lesson.slug}->${toNode.lesson.slug}`,
-              d: `M ${fromNode.x} ${fromNode.y} C ${midX} ${fromNode.y}, ${midX} ${toNode.y}, ${toNode.x} ${toNode.y}`,
-              bothDone,
-              oneDone,
-              isHovered,
-              color: layer.mod.color,
-            };
-          }),
-      );
-    });
-  }, [layers, hoveredSlug]);
+  const rankProgress = upcomingRank
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          ((xp - rank.minXp) /
+            (upcomingRank.minXp - rank.minXp)) *
+            100,
+        ),
+      )
+    : 100;
+
+  const bossCount = allNodes.filter(
+    (node) => node.lesson.kind === "boss",
+  ).length;
 
   return (
     <section
       className="sticker-lg overflow-hidden bg-paper text-ink"
-      aria-label="Interactive Neural Skill Tree"
+      aria-labelledby={titleId}
+      aria-busy={loading}
     >
-      {/* ── TOP HERO BAR (Matches Homepage Neo-Brutalist Style) ── */}
-      <div className="border-b-2 border-ink bg-cream p-5 sm:p-7">
-        <div className="grid gap-6 lg:grid-cols-[1.25fr_1fr] lg:items-center">
-          {/* Left: Headline + NOVA Copilot Bubble */}
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="chip bg-sun text-ink">
-                <BrainCircuit className="size-3.5" /> Neural Skill Tree
-              </span>
-              <span className="chip bg-white text-ink">
-                {clearedCount}/{totalCount} Neurons Lit
-              </span>
-              {streak > 1 && (
-                <span className="chip bg-coral text-ink">
-                  <Flame className="size-3.5" /> {streak} Day Streak
-                </span>
-              )}
-            </div>
-
-            <h2 className="mt-4 font-display text-3xl font-extrabold leading-[1.05] tracking-tight text-ink sm:text-5xl">
-              Wire up your{" "}
-              <span className="inline-block bg-lime px-2">AI brain.</span>
-            </h2>
-
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink/75 sm:text-base">
-              Every mission you pass fires a neuron and banks XP. Clear all 5
-              missions in a column to energize that layer of your network.
-            </p>
-
-            {/* NOVA Copilot Callout */}
-            <div className="mt-5 inline-flex items-center gap-3 rounded-2xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
-              <Image
-                src="/img/nova-bot.png"
-                alt="NOVA copilot"
-                width={44}
-                height={44}
-                className="size-11 shrink-0 rounded-xl border-2 border-ink bg-vio/15 object-cover"
-              />
-              <div className="pr-2">
-                <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-vio">
-                  NOVA // Tactical Readout
-                </p>
-                <p className="text-xs font-semibold text-ink sm:text-sm">
-                  {loading
-                    ? "Scanning your browser storage…"
-                    : nextUp
-                      ? `Next target: "${nextUp.lesson.title}" (+${nextUp.lesson.xp} XP)`
-                      : "All 15 neurons firing! Full Stack Human achieved."}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Gamified Player HUD Sticker Card */}
-          <div className="sticker bg-white p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-                  Network Integrity
-                </p>
-                <p className="mt-1 font-display text-5xl font-extrabold leading-none tracking-tight text-ink">
-                  <span className="bg-lime px-1.5">
-                    {loading ? "—" : `${integrity}%`}
-                  </span>
-                </p>
-              </div>
-
-              <div className="rounded-xl border-2 border-ink bg-sun px-3.5 py-2 text-right shadow-[2px_2px_0_#171321]">
-                <p className="flex items-center justify-end gap-1 font-display text-2xl font-extrabold leading-none text-ink">
-                  <Zap className="size-5 fill-ink" />
-                  {loading ? "—" : xp.toLocaleString()}
-                </p>
-                <p className="mt-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink/75">
-                  Total XP
-                </p>
-              </div>
-            </div>
-
-            {/* Rank & Level Progress Bar */}
-            <div className="mt-5 rounded-xl border-2 border-ink bg-paper p-3">
-              <div className="flex items-center justify-between font-mono text-xs font-bold uppercase">
-                <span className="text-vio">Rank: {rank.name}</span>
-                <span className="text-ink/60">
-                  {upcoming
-                    ? `${upcoming.minXp - xp} XP to ${upcoming.name}`
-                    : "MAX RANK"}
-                </span>
-              </div>
-              <div className="mt-2 h-3.5 w-full overflow-hidden rounded-full border-2 border-ink bg-white p-0.5">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-vio via-aqua to-lime transition-all duration-500"
-                  style={{ width: `${loading ? 0 : rankPct}%` }}
-                />
-              </div>
-              <div className="mt-2 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-ink/55">
-                <span>{rank.tagline}</span>
-                <span>
-                  {badgeCount}/{BADGES.length} Badges
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── LEGEND & QUICK LAUNCH BAR ── */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-ink bg-white px-5 py-3 sm:px-7">
-        <div className="flex flex-wrap items-center gap-4 font-mono text-[11px] font-bold uppercase tracking-wider text-ink/70">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex size-5 items-center justify-center rounded-full border-2 border-ink bg-vio text-white">
-              <Check className="size-3" strokeWidth={3.5} />
-            </span>
-            Cleared
+      {/* Editorial-style header, using the same visual language as the homepage. */}
+      <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[minmax(0,1fr)_290px]">
+        <div>
+          <span className="chip bg-vio text-white">
+            <BrainCircuit className="size-4" aria-hidden="true" />
+            Your neural build
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex size-5 items-center justify-center rounded-full border-2 border-ink bg-lime font-mono text-[10px] text-ink">
-              !
-            </span>
-            Next Target
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex size-5 items-center justify-center rounded-full border-2 border-ink bg-white font-mono text-[10px] text-ink">
-              1
-            </span>
-            Available
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex size-5 items-center justify-center rounded-full border-2 border-ink bg-ink text-sun">
-              <Skull className="size-3" />
-            </span>
-            Boss Fight
-          </span>
-        </div>
 
-        {nextUp && (
-          <Link
-            href={lessonPath(nextUp.lesson)}
-            className="btn btn-primary !py-2 !text-xs"
+          <h2
+            id={titleId}
+            className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl"
           >
-            Continue: {nextUp.lesson.title} <ArrowRight className="size-4" />
-          </Link>
-        )}
+            Power up your <span className="bg-lime px-1">network.</span>
+          </h2>
+
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/70">
+            Every checkpoint lights a node. Clear a module to power its
+            connection to the next layer.
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-end gap-x-4 gap-y-2">
+            <strong
+              className="inline-block font-display text-6xl font-extrabold leading-none tracking-tight"
+              style={{ boxShadow: `inset 0 -0.32em 0 ${LIME}` }}
+            >
+              {loading ? "—" : `${integrity}%`}
+            </strong>
+
+            <span className="pb-1 font-mono text-[11px] font-bold uppercase leading-relaxed tracking-wider text-ink/60">
+              Network integrity
+              <br />
+              {loading ? "Loading…" : `${cleared} of ${total} neurons online`}
+            </span>
+          </div>
+
+          {/* One segment per lesson: more tangible than a generic progress bar. */}
+          <div
+            className="mt-4 flex max-w-xl gap-1"
+            role="progressbar"
+            aria-label="Lessons completed"
+            aria-valuemin={0}
+            aria-valuemax={Math.max(total, 1)}
+            aria-valuenow={loading ? undefined : cleared}
+            aria-valuetext={
+              loading
+                ? "Loading progress"
+                : `${cleared} of ${total} lessons completed`
+            }
+          >
+            {allNodes.map((node) => (
+              <span
+                key={node.lesson.slug}
+                className="h-3 min-w-0 flex-1 rounded-sm border border-ink/50 transition-colors duration-300"
+                style={{
+                  backgroundColor: node.done
+                    ? node.moduleColor
+                    : node.lesson.slug === nextNode?.lesson.slug
+                      ? SUN
+                      : "#FFFFFF",
+                }}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* XP is read from the existing provider; no second XP system. */}
+        <div className="sticker h-fit bg-white p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-12 shrink-0 place-items-center rounded-xl border-2 border-ink bg-sun">
+              <Zap
+                className="size-6 text-ink"
+                strokeWidth={2.6}
+                aria-hidden="true"
+              />
+            </span>
+
+            <div>
+              <p className="font-display text-3xl font-extrabold leading-none">
+                {loading ? "—" : xp.toLocaleString()}
+                <span className="ml-1 text-lg">XP</span>
+              </p>
+              <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-wider text-vio">
+                {loading ? "Loading rank…" : `Rank // ${rank.name}`}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="mt-4 h-3 overflow-hidden rounded-full border-2 border-ink bg-paper p-[1px]"
+            role="progressbar"
+            aria-label="Progress toward next rank"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={
+              loading ? undefined : Math.round(rankProgress)
+            }
+          >
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-vio via-blush to-sun transition-[width] duration-500 motion-reduce:transition-none"
+              style={{
+                width: `${loading ? 0 : rankProgress}%`,
+              }}
+            />
+          </div>
+
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-1 font-mono text-[10px] font-bold uppercase tracking-wider text-ink/55">
+            <span>
+              {loading
+                ? "Syncing…"
+                : upcomingRank
+                  ? `${(upcomingRank.minXp - xp).toLocaleString()} XP to ${upcomingRank.name}`
+                  : "Top rank reached"}
+            </span>
+            <span>
+              {loading
+                ? "—"
+                : `${state?.badges.length ?? 0}/${BADGES.length}`}{" "}
+              badges
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* ── MAIN INTERACTIVE NEURAL NETWORK BOARD ── */}
-      <div className="relative bg-paper p-5 sm:p-7">
-        {/* Background SVG Synapse Cables (Visible on Desktop) */}
-        <svg
-          viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-          preserveAspectRatio="none"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
-        >
-          {synapses.map((s) => (
-            <g key={s.id}>
-              {/* Thick black casing for energized or hovered cables */}
-              {(s.bothDone || s.isHovered) && (
-                <path
-                  d={s.d}
-                  fill="none"
-                  stroke={INK}
-                  strokeWidth={s.isHovered ? 8 : 6}
-                  strokeLinecap="round"
-                  vectorEffect="non-scaling-stroke"
-                />
+      {/* A prominent next step, like the calls to action elsewhere on the site. */}
+      {!compact && !loading && (
+        <div className="flex flex-wrap items-center justify-between gap-4 border-y-[3px] border-ink bg-sun px-5 py-3 sm:px-7">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl border-2 border-ink bg-ink text-sun">
+              <Sparkles className="size-5" aria-hidden="true" />
+            </span>
+
+            <div className="min-w-0">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/65">
+                {nextNode ? "Next target" : "Full network"}
+              </p>
+              <p className="font-display text-base font-extrabold leading-tight sm:text-lg">
+                {nextNode?.lesson.title ?? "Every neuron is online."}
+              </p>
+              {nextNode && (
+                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ink/65">
+                  {nextNode.moduleTitle} · {nextNode.lesson.minutes} min ·{" "}
+                  {nextNode.lesson.xp} base XP
+                </p>
               )}
-              {/* Inner colored signal line */}
-              <path
-                d={s.d}
-                fill="none"
-                stroke={
-                  s.bothDone
-                    ? LIME
-                    : s.isHovered
-                      ? SUN
-                      : s.oneDone
-                        ? s.color
-                        : INK
-                }
-                strokeWidth={s.bothDone || s.isHovered ? 3.5 : s.oneDone ? 2.5 : 1.5}
-                strokeOpacity={
-                  s.bothDone || s.isHovered ? 1 : s.oneDone ? 0.55 : 0.16
-                }
-                strokeDasharray={s.bothDone ? "8 8" : s.oneDone ? "4 6" : undefined}
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            </g>
-          ))}
-        </svg>
+            </div>
+          </div>
 
-        {/* 3 Module Columns (Layers) */}
-        <div className="relative z-10 grid gap-6 lg:grid-cols-3 lg:gap-8">
-          {layers.map((layer) => (
-            <div
-              key={layer.mod.slug}
-              className="flex flex-col rounded-2xl border-2 border-ink bg-cream/90 p-4 shadow-[5px_5px_0_#171321] backdrop-blur-[2px]"
+          {nextNode && (
+            <Link
+              href={lessonPath(nextNode.lesson)}
+              className="btn btn-violet shrink-0"
             >
-              {/* Module Layer Header */}
-              <div
-                className="rounded-xl border-2 border-ink p-3.5 shadow-[3px_3px_0_#171321]"
-                style={{ backgroundColor: layer.mod.color }}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="rounded-md border-2 border-ink bg-white px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink">
-                    {layer.mod.codename}
-                  </span>
-                  <span className="rounded-md border-2 border-ink bg-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-paper">
-                    {layer.isComplete
-                      ? "★ LAYER COMPLETE"
-                      : `${layer.clearedCount}/${layer.nodes.length} CLEARED`}
-                  </span>
-                </div>
+              {nextNode.lesson.kind === "boss"
+                ? "Start boss fight"
+                : "Launch mission"}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          )}
+        </div>
+      )}
 
-                <h3
-                  className={`mt-2 font-display text-xl font-extrabold leading-tight ${
-                    layer.colIdx === 0 ? "text-white" : "text-ink"
-                  }`}
+      {/* Actual game board. No fixed SVG positioning or foreignObject icons. */}
+      <div className="nm-board bg-ink px-4 pb-6 pt-5 sm:px-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-paper/70">
+          <span className="flex items-center gap-2 text-lime">
+            <span
+              className="nm-beacon size-2.5 rounded-full bg-lime"
+              aria-hidden="true"
+            />
+            Circuit view // live
+          </span>
+
+          <span>
+            {layers.length} layers · {total} nodes · {bossCount} bosses
+          </span>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-3 lg:gap-7">
+          {layers.map((layer, layerIndex) => {
+            const remaining = layer.nodes.length - layer.count;
+
+            return (
+              <div key={layer.mod.slug} className="relative min-w-0">
+                <section
+                  aria-labelledby={`${titleId}-layer-${layerIndex}`}
+                  className="flex h-full flex-col overflow-hidden rounded-[20px] border-[3px] border-ink bg-paper"
+                  style={{
+                    boxShadow: `5px 5px 0 ${layer.mod.color}`,
+                  }}
                 >
-                  {layer.mod.title}
-                </h3>
+                  <div
+                    className="h-2 border-b-2 border-ink"
+                    style={{ backgroundColor: layer.mod.color }}
+                    aria-hidden="true"
+                  />
 
-                {/* Layer Mini Progress Pips */}
-                <div className="mt-2.5 flex gap-1.5">
-                  {layer.nodes.map((n) => (
-                    <span
-                      key={n.lesson.slug}
-                      className="h-2 flex-1 rounded-full border border-ink"
-                      style={{
-                        backgroundColor: n.done ? LIME : "rgba(255,255,255,0.65)",
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Neuron Nodes List */}
-              <ol className="mt-4 flex flex-col gap-3">
-                {layer.nodes.map((node) => {
-                  const { lesson, done } = node;
-                  const isBoss = lesson.kind === "boss";
-                  const isNext = nextUp?.lesson.slug === lesson.slug;
-                  const isSelected = activeNode?.lesson.slug === lesson.slug;
-
-                  return (
-                    <li key={lesson.slug}>
-                      <motion.div
-                        whileHover={{ y: -2, x: -1 }}
-                        whileTap={{ y: 1, x: 1 }}
+                  <div className="border-b-2 border-ink bg-white px-4 pb-4 pt-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span
+                        className="rounded-lg border-2 border-ink px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-wider"
+                        style={{
+                          backgroundColor: layer.mod.color,
+                          color: layerIndex === 0 ? "#FFFFFF" : INK,
+                        }}
                       >
-                        <Link
-                          href={lessonPath(lesson)}
-                          onMouseEnter={() => setHoveredSlug(lesson.slug)}
-                          onFocus={() => setHoveredSlug(lesson.slug)}
-                          className={`group relative flex items-center gap-3.5 rounded-xl border-2 border-ink p-3 transition-colors ${
-                            done
-                              ? "bg-white shadow-[3px_3px_0_#171321]"
-                              : isNext
-                                ? "bg-lime shadow-[4px_4px_0_#171321]"
-                                : isBoss
-                                  ? "bg-ink text-paper shadow-[3px_3px_0_#171321]"
-                                  : "bg-white/90 hover:bg-white shadow-[3px_3px_0_#171321]"
-                          } ${isSelected ? "ring-2 ring-ink ring-offset-2 ring-offset-paper" : ""}`}
-                        >
-                          {/* PERFECTLY CENTERED NEURON CIRCLE (Flexbox, zero SVG offset) */}
-                          <span
-                            className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border-2 border-ink shadow-[2px_2px_0_#171321] transition-transform group-hover:scale-105"
-                            style={{
-                              backgroundColor: done
-                                ? layer.mod.color
-                                : isNext
-                                  ? SUN
-                                  : isBoss
-                                    ? "#2A2438"
-                                    : "#FFF6E9",
-                              color:
-                                done && layer.colIdx === 0
-                                  ? "#FFFFFF"
-                                  : isBoss && !done && !isNext
-                                    ? SUN
-                                    : INK,
-                            }}
-                          >
-                            {done ? (
-                              <Check className="size-5" strokeWidth={3.5} />
-                            ) : isBoss ? (
-                              <Skull className="size-5" strokeWidth={2.4} />
-                            ) : (
-                              <span className="font-mono text-sm font-bold leading-none">
-                                0{lesson.index + 1}
-                              </span>
-                            )}
-                          </span>
+                        {layer.mod.codename}
+                      </span>
 
-                          {/* Mission Title & Meta */}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex flex-wrap items-center gap-1.5">
+                      <span
+                        className={`rounded-md border-2 border-ink px-2 py-0.5 font-mono text-[10px] font-bold uppercase ${
+                          layer.full ? "bg-lime" : "bg-paper"
+                        }`}
+                      >
+                        {loading
+                          ? "…"
+                          : layer.full
+                            ? "Online"
+                            : `${layer.count}/${layer.nodes.length}`}
+                      </span>
+                    </div>
+
+                    <h3
+                      id={`${titleId}-layer-${layerIndex}`}
+                      className="mt-3 font-display text-xl font-extrabold leading-tight tracking-tight"
+                    >
+                      {layer.mod.title}
+                    </h3>
+
+                    <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-wider text-ink/50">
+                      Neural layer {String(layerIndex + 1).padStart(2, "0")}
+                    </p>
+
+                    <div className="mt-3 flex gap-1" aria-hidden="true">
+                      {layer.nodes.map((node) => (
+                        <span
+                          key={node.lesson.slug}
+                          className="h-2 flex-1 rounded-full border border-ink/40"
+                          style={{
+                            backgroundColor: node.done
+                              ? layer.mod.color
+                              : "#FFFFFF",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <ol className="m-0 list-none px-3 py-4">
+                    {layer.nodes.map((node, nodeIndex) => {
+                      const { lesson } = node;
+                      const isBoss = lesson.kind === "boss";
+                      const isNext =
+                        lesson.slug === nextNode?.lesson.slug;
+                      const darkBoss = isBoss && !node.done;
+
+                      const nextInLayer =
+                        layer.nodes[nodeIndex + 1];
+
+                      const connectionLit =
+                        !!nextInLayer &&
+                        node.done &&
+                        nextInLayer.done;
+
+                      const connectionScanned =
+                        !!nextInLayer &&
+                        (activeSlug === lesson.slug ||
+                          activeSlug ===
+                            nextInLayer.lesson.slug);
+
+                      const orbBackground = node.done
+                        ? layer.mod.color
+                        : isBoss
+                          ? SUN
+                          : isNext
+                            ? "#FFFFFF"
+                            : "#FFF6E9";
+
+                      // Purple gets a white check; the brighter module colors
+                      // get an ink check for contrast.
+                      const orbForeground =
+                        node.done && layerIndex === 0
+                          ? "#FFFFFF"
+                          : INK;
+
+                      return (
+                        <li key={lesson.slug}>
+                          <Link
+                            href={lessonPath(lesson)}
+                            onMouseEnter={() =>
+                              setHoveredSlug(lesson.slug)
+                            }
+                            onMouseLeave={() =>
+                              setHoveredSlug(null)
+                            }
+                            onFocus={() =>
+                              setFocusedSlug(lesson.slug)
+                            }
+                            onBlur={() =>
+                              setFocusedSlug(null)
+                            }
+                            aria-label={`${lesson.title}. ${
+                              isBoss ? "Boss fight. " : ""
+                            }${
+                              node.done
+                                ? "Cleared; replay earns no additional XP."
+                                : `${lesson.xp} base XP plus combo bonus.`
+                            }${isNext ? " Recommended next mission." : ""}`}
+                            className={`nm-mission group relative flex min-h-[82px] items-center gap-3 rounded-xl border-2 border-ink px-3 py-2 shadow-[3px_3px_0_#171321] focus-visible:outline focus-visible:outline-[3px] focus-visible:outline-offset-4 focus-visible:outline-sun ${
+                              darkBoss
+                                ? "bg-ink text-paper"
+                                : isBoss && node.done
+                                  ? "bg-sun text-ink"
+                                  : isNext
+                                    ? "nm-next bg-lime text-ink"
+                                    : "bg-white text-ink"
+                            }`}
+                            style={
+                              {
+                                "--nm-accent": layer.mod.color,
+                              } as CSSProperties
+                            }
+                          >
+                            <span
+                              className="nm-orb grid size-12 shrink-0 place-items-center rounded-full border-[3px] border-ink"
+                              style={{
+                                backgroundColor: orbBackground,
+                                color: orbForeground,
+                              }}
+                              aria-hidden="true"
+                            >
+                              {node.done ? (
+                                <Check
+                                  className="block size-6"
+                                  strokeWidth={3.2}
+                                />
+                              ) : isBoss ? (
+                                <Skull
+                                  className="block size-6"
+                                  strokeWidth={2.3}
+                                />
+                              ) : (
+                                <span className="font-display text-lg font-extrabold leading-none">
+                                  {lesson.index + 1}
+                                </span>
+                              )}
+                            </span>
+
+                            <span className="min-w-0 flex-1">
                               <span
-                                className={`font-mono text-[10px] font-bold uppercase tracking-wider ${
-                                  isBoss && !done && !isNext
+                                className={`block font-mono text-[10px] font-bold uppercase tracking-wider ${
+                                  darkBoss
                                     ? "text-sun"
                                     : "text-ink/55"
                                 }`}
                               >
                                 {isBoss
-                                  ? "Boss Fight"
-                                  : `Mission 0${lesson.index + 1}`}
+                                  ? node.done
+                                    ? "Boss cleared"
+                                    : "Boss fight"
+                                  : `Mission ${String(
+                                      lesson.index + 1,
+                                    ).padStart(2, "0")}`}
                               </span>
+
                               <span
-                                className={`rounded border border-ink px-1.5 py-0.2 font-mono text-[9px] font-bold uppercase ${
-                                  done
-                                    ? "bg-lime text-ink"
-                                    : isNext
-                                      ? "bg-white text-ink"
-                                      : "bg-sun text-ink"
+                                className={`mt-0.5 block font-display text-[14px] font-extrabold leading-snug ${
+                                  darkBoss
+                                    ? "text-paper"
+                                    : "text-ink"
                                 }`}
                               >
-                                {done ? "Cleared" : `+${lesson.xp} XP`}
+                                {lesson.title}
                               </span>
-                            </div>
 
-                            <p
-                              className={`mt-0.5 font-display text-sm font-extrabold leading-snug ${
-                                isBoss && !done && !isNext
-                                  ? "text-paper"
-                                  : "text-ink"
-                              }`}
-                            >
-                              {lesson.title}
-                            </p>
-                          </div>
-
-                          <ArrowRight
-                            className={`size-4 shrink-0 transition-transform group-hover:translate-x-1 ${
-                              isBoss && !done && !isNext
-                                ? "text-sun"
-                                : "text-ink"
-                            }`}
-                          />
-
-                          {isNext && (
-                            <span className="absolute -right-2 -top-2.5 rotate-3 rounded-md border-2 border-ink bg-sun px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink shadow-[2px_2px_0_#171321]">
-                              Next Up
+                              <span
+                                className={`mt-1 block font-mono text-[10px] font-bold uppercase tracking-wider ${
+                                  darkBoss
+                                    ? "text-paper/65"
+                                    : "text-ink/55"
+                                }`}
+                              >
+                                {node.done
+                                  ? "Cleared · replay for practice"
+                                  : `${lesson.xp} base XP + combo`}
+                              </span>
                             </span>
-                          )}
-                        </Link>
-                      </motion.div>
-                    </li>
-                  );
-                })}
-              </ol>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* ── BOTTOM MISSION INSPECTOR / LAUNCHPAD ── */}
-      {!compact && activeNode && (
-        <div className="border-t-2 border-ink bg-ink px-5 py-4 text-paper sm:px-7">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-lime">
-                <Sparkles className="size-3.5" />
-                {hoveredSlug ? "Inspecting Neuron" : "Recommended Mission"} ·{" "}
-                {activeNode.modCode} ({activeNode.modTitle})
+                            <ArrowRight
+                              className={`size-4 shrink-0 ${
+                                darkBoss
+                                  ? "text-sun"
+                                  : "text-ink/45"
+                              }`}
+                              aria-hidden="true"
+                            />
+
+                            {isNext && (
+                              <span
+                                className="absolute -right-1 -top-2.5 rotate-6 rounded-md border-2 border-ink bg-sun px-2 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-ink shadow-[2px_2px_0_#171321]"
+                                aria-hidden="true"
+                              >
+                                Next
+                              </span>
+                            )}
+                          </Link>
+
+                          {/* The wire lights fully only when both endpoints
+                              are cleared; a single cleared endpoint powers
+                              the first half. */}
+                          {nextInLayer && (
+                            <span
+                              className="ml-[34px] block h-3 w-[5px] border-x border-ink/30"
+                              style={{
+                                background: connectionLit
+                                  ? layer.mod.color
+                                  : connectionScanned
+                                    ? SUN
+                                    : node.done
+                                      ? `linear-gradient(to bottom, ${layer.mod.color} 50%, #C8C2D0 50%)`
+                                      : "#C8C2D0",
+                              }}
+                              aria-hidden="true"
+                            />
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ol>
+
+                  <div
+                    className={`mt-auto flex items-center gap-2 border-t-2 border-ink px-4 py-3 font-mono text-[10px] font-bold uppercase tracking-wider ${
+                      layer.full
+                        ? "bg-lime text-ink"
+                        : "bg-white text-ink/65"
+                    }`}
+                  >
+                    {layer.full ? (
+                      <>
+                        <Zap
+                          className="size-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {layerIndex < layers.length - 1
+                          ? "Layer energized · bridge live"
+                          : "Layer energized · full network"}
+                      </>
+                    ) : (
+                      <>
+                        <BrainCircuit
+                          className="size-4 shrink-0"
+                          aria-hidden="true"
+                        />
+                        {remaining} more to energize this layer
+                      </>
+                    )}
+                  </div>
+                </section>
+
+                {/* Connect the module boards. A completed module powers
+                    its outgoing bridge even before the next module begins. */}
+                {layerIndex < layers.length - 1 && (
+                  <>
+                    <div
+                      className="absolute -right-[30px] top-1/2 z-10 hidden h-9 w-[30px] -translate-y-1/2 items-center justify-center lg:flex"
+                      aria-hidden="true"
+                    >
+                      <span
+                        className="absolute inset-x-0 h-2 rounded-full border-y-2 border-ink"
+                        style={{
+                          backgroundColor: layer.full
+                            ? LIME
+                            : "#FFF6E9",
+                        }}
+                      />
+                      <span
+                        className={`relative grid size-6 place-items-center rounded-full border-2 border-ink ${
+                          layer.full ? "bg-lime" : "bg-paper"
+                        }`}
+                      >
+                        <Zap className="size-3" />
+                      </span>
+                    </div>
+
+                    <div
+                      className={`mx-auto mt-4 grid size-8 place-items-center rounded-full border-2 border-ink lg:hidden ${
+                        layer.full ? "bg-lime" : "bg-white"
+                      }`}
+                      aria-hidden="true"
+                    >
+                      <ArrowDown className="size-4" />
+                    </div>
+                  </>
+                )}
               </div>
-              <p className="mt-1 font-display text-xl font-extrabold text-paper">
-                {activeNode.lesson.title}
+            );
+          })}
+        </div>
+
+        {/* Hover/focus gives feedback; on touch, this defaults to next up. */}
+        {!compact && !loading && preview && (
+          <div
+            className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-xl border-2 bg-paper/10 p-4 text-paper"
+            style={{ borderColor: preview.moduleColor }}
+          >
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-lime">
+                <span
+                  className="size-2 rounded-full bg-lime"
+                  aria-hidden="true"
+                />
+                {activeSlug
+                  ? "Node scan"
+                  : nextNode
+                    ? "Recommended next"
+                    : "Network complete"}
               </p>
-              <p className="mt-0.5 text-xs text-paper/70">
-                {activeNode.lesson.subtitle} · {activeNode.lesson.minutes} min ·{" "}
-                {activeNode.done
-                  ? "Already cleared (replay for practice)"
-                  : `Worth ${activeNode.lesson.xp} XP + combo bonus`}
+
+              <p className="mt-1 font-display text-xl font-extrabold">
+                {preview.lesson.title}
+              </p>
+
+              <p className="mt-1 font-mono text-[10px] uppercase leading-relaxed tracking-wider text-paper/65">
+                {preview.moduleTitle} · {preview.lesson.minutes} min ·{" "}
+                {preview.done
+                  ? "Cleared · replays are for practice"
+                  : `${preview.lesson.xp} base XP + combo bonus`}
               </p>
             </div>
 
             <Link
-              href={lessonPath(activeNode.lesson)}
+              href={lessonPath(preview.lesson)}
               className="btn btn-primary shrink-0"
             >
-              {activeNode.done
-                ? "Replay Mission"
-                : activeNode.lesson.kind === "boss"
-                  ? "Enter Boss Arena"
-                  : "Launch Mission"}
-              <ArrowRight className="size-4" />
+              {preview.done
+                ? "Review mission"
+                : preview.lesson.kind === "boss"
+                  ? "Start boss fight"
+                  : "Open mission"}
+              <ArrowRight className="size-4" aria-hidden="true" />
             </Link>
           </div>
-        </div>
-      )}
+        )}
+
+        <p className="mt-5 font-mono text-[10px] leading-relaxed tracking-wider text-paper/55">
+          All lessons are open. XP is banked after passing a checkpoint.
+          This circuit visualizes learning progress; it is not a trained AI
+          model. Progress saves in this browser.
+        </p>
+      </div>
+
+      <style>{`
+        .nm-board {
+          background-image: radial-gradient(
+            rgba(255, 246, 233, 0.12) 0.8px,
+            transparent 0.8px
+          );
+          background-size: 18px 18px;
+        }
+
+        .nm-mission {
+          transition:
+            transform 180ms ease,
+            box-shadow 180ms ease;
+        }
+
+        .nm-orb {
+          transition: transform 180ms ease;
+        }
+
+        .nm-mission:hover,
+        .nm-mission:focus-visible {
+          transform: translate(-2px, -2px);
+          box-shadow: 6px 6px 0 var(--nm-accent);
+        }
+
+        .nm-mission:hover .nm-orb,
+        .nm-mission:focus-visible .nm-orb {
+          transform: scale(1.08);
+        }
+
+        .nm-next {
+          animation: nm-target 2.6s ease-in-out infinite;
+        }
+
+        .nm-beacon {
+          animation: nm-beacon 2.3s ease-in-out infinite;
+        }
+
+        @keyframes nm-target {
+          0%, 100% {
+            box-shadow: 3px 3px 0 #171321;
+          }
+          50% {
+            box-shadow:
+              3px 3px 0 #171321,
+              0 0 0 4px rgba(198, 243, 46, 0.55);
+          }
+        }
+
+        @keyframes nm-beacon {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .nm-next,
+          .nm-beacon {
+            animation: none;
+          }
+
+          .nm-mission,
+          .nm-orb {
+            transition: none;
+          }
+
+          .nm-mission:hover,
+          .nm-mission:focus-visible,
+          .nm-mission:hover .nm-orb,
+          .nm-mission:focus-visible .nm-orb {
+            transform: none;
+          }
+        }
+      `}</style>
     </section>
   );
 }
