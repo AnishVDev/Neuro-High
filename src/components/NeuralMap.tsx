@@ -170,35 +170,6 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </p>
           </div>
 
-          <div className="grid content-start gap-3">
-            {/* Rank card */}
-            <div className="rounded-xl border-2 border-ink bg-ink p-4 text-paper shadow-[3px_3px_0_#171321]">
-              <div
-                className="h-3 overflow-hidden rounded-full border-2 border-paper/40 bg-paper/10 p-[1px]"
-                role="progressbar"
-                aria-label="Progress to next rank"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={loading ? undefined : rankProgress}
-              >
-                <div
-                  className="h-full rounded-full bg-lime transition-[width] duration-700 motion-reduce:transition-none"
-                  style={{ width: `${loading ? 0 : rankProgress}%` }}
-                />
-              </div>
-
-              <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
-                <span className="text-paper">{loading ? "Syncing…" : rank.name}</span>
-                <span className="text-paper/50">
-                  {loading
-                    ? ""
-                    : upcomingRank
-                      ? `${Math.max(0, upcomingRank.minXp - xp)} XP to ${upcomingRank.name}`
-                      : "Top rank"}
-                </span>
-              </div>
-            </div>
-
             {/* Small NOVA briefing */}
             {!compact && (
               <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
