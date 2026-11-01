@@ -25,7 +25,7 @@ function nodeYs(count: number): number[] {
 }
 
 export default function NeuralMap({ compact = false }: { compact?: boolean }) {
-  const { isCompleted, loading } = useProgress();
+  const { isCompleted, loading, xp } = useProgress();
 
   const layers = useMemo(
     () =>
