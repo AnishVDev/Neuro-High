@@ -1,3 +1,6 @@
+Here is the revised version of `TOOLKIT_LESSONS`. I kept all interactive IDs, badge references, scenario structures, and XP mechanics intact, while adopting a clearer Khan Academy-style tone and correcting overstated claims (such as models having "zero correlation" between confidence and accuracy, always defaulting to essays, or reliably critiquing their own mistakes without guidance, as well as updating the context around the 2023 federal court sanctions case).
+
+```ts
 import type { Lesson } from "./types";
 
 export const TOOLKIT_LESSONS: Lesson[] = [
@@ -6,94 +9,122 @@ export const TOOLKIT_LESSONS: Lesson[] = [
     module: "toolkit",
     index: 0,
     kind: "lesson",
-    title: "Anatomy of a Killer Prompt",
-    subtitle: "Five ingredients that turn mush into magic",
-    hook: "The difference between 'write about the Civil War' and a genuinely useful answer isn't the AI — it's the prompt. Prompts have anatomy. Learn it and you control the machine.",
+    title: "What Makes an Effective Prompt",
+    subtitle: "Five parts that help you get clearer, more useful responses",
+    hook: "Typing 'write about the Civil War' usually gets you a broad, generic summary. Giving clear instructions and context makes it much more likely that you'll get a helpful response.",
     minutes: 8,
     xp: 120,
     blocks: [
       {
         type: "lead",
-        text: "A prompt is not a question you shout into a void. It's a spec sheet. The model fills in every gap you leave open — and its guesses about what you want are usually bland. Give it a job description, not a vibe.",
+        text: "When you leave out details in a prompt, a language model fills in the blanks based on common patterns in its training data. That often leads to vague or overly long answers. Treating your prompt like a clear set of instructions helps guide the response toward what you actually need. (And whenever you use AI for schoolwork, make sure to check your teacher's guidelines first.)",
       },
       {
         type: "steps",
-        heading: "The five-ingredient framework",
+        heading: "Five helpful parts of a prompt",
         steps: [
-          { title: "ROLE — who should it be?", text: "'You are a patient biology tutor…' frames tone, depth, and vocabulary instantly." },
-          { title: "TASK — the exact verb", text: "Not 'help with my essay' but 'list 5 counterarguments to my thesis.' Verbs are steering wheels." },
-          { title: "CONTEXT — what it needs to know", text: "Grade level, what you already tried, the assignment's rules. AI can't read your mind or your rubric." },
-          { title: "FORMAT — the shape of the answer", text: "Bullet points? 150 words? A table? A quiz? Untold, the model picks an essay by default." },
-          { title: "CONSTRAINTS — the guardrails", text: "'No jargon.' 'Don't solve it — give me hints.' 'Cite only sources I can find in a library catalog.'" },
+          {
+            title: "Role: perspective and audience level",
+            text: "Asking the model to respond like a patient biology tutor or a debate opponent helps set the tone, vocabulary, and level of detail.",
+          },
+          {
+            title: "Task: the specific action",
+            text: "Use a clear verb. Instead of 'help with my essay,' try 'list 4 possible counterarguments to my thesis.'",
+          },
+          {
+            title: "Context: relevant background",
+            text: "Include your grade level, what you have already studied, or the goal of your assignment. The model only knows what you share in the conversation.",
+          },
+          {
+            title: "Format: how to organize the output",
+            text: "Ask for bullet points, a 150-word paragraph, a comparison table, or practice questions. If you don't specify a format, the model chooses one on its own, which may be much longer than you need.",
+          },
+          {
+            title: "Constraints: boundaries to follow",
+            text: "Set clear limits, such as 'define any technical terms,' 'keep it under 200 words,' or 'give me hints without solving the problem.'",
+          },
         ],
       },
       {
         type: "compare",
-        heading: "Same student, two prompts",
+        heading: "Comparing two prompts on the same topic",
         weak: {
-          label: "Mush prompt",
+          label: "Vague prompt",
           text: "explain photosynthesis",
         },
         strong: {
-          label: "Spec-sheet prompt",
-          text: "You are a biology tutor for a 10th grader. Explain photosynthesis in under 200 words using a cooking analogy, then give me 3 quick check-for-understanding questions. No jargon without definitions.",
+          label: "Specific prompt",
+          text: "Act as a biology tutor for a 10th-grade student. Explain photosynthesis in under 200 words using a cooking analogy, and define any technical terms you use. At the end, ask me 3 short questions to check my understanding.",
         },
-        note: "The second prompt took 20 extra seconds to write and saves five rounds of 'no, not like that.'",
+        note: "Taking an extra 20 seconds to specify the level, format, and limits can save several rounds of back-and-forth.",
       },
       {
         type: "interactive",
         id: "prompt-builder",
         title: "Lab: The Prompt Forge",
-        caption: "Stack the five ingredients, forge your prompt, and fire the Signal Score. A weak prompt barely registers — a complete spec lights up the machine. Score 90+ to earn the Promptsmith badge.",
+        caption:
+          "Combine the five parts to build a clear prompt and check your Signal Score. Vague requests score low, while specific instructions raise your score. Reach 90 or higher to earn the Promptsmith badge.",
       },
       {
         type: "callout",
         variant: "nova",
-        title: "NOVA says",
-        text: "You don't need all five ingredients every time — a quick fact check doesn't need a ROLE. But when output quality matters, every missing ingredient is a dice roll.",
+        title: "NOVA's tip",
+        text: "You don't need all five parts every single time. A quick definition doesn't require a role or a long list of constraints. Still, when an answer feels too generic, checking which of these five parts is missing is an easy way to improve it.",
       },
       {
         type: "terms",
         terms: [
-          { term: "Prompt", def: "The input you give a generative AI — instructions, context, and question combined." },
-          { term: "Prompt engineering", def: "The craft of designing inputs that reliably produce the output you actually want." },
-          { term: "Zero-shot", def: "Asking for something with no examples. Works fine; examples just make it better." },
+          {
+            term: "Prompt",
+            def: "The input you give a generative AI system, including your question, instructions, and background context.",
+          },
+          {
+            term: "Prompt engineering",
+            def: "The practice of writing and refining prompts so an AI system is more likely to produce useful, relevant outputs.",
+          },
+          {
+            term: "Zero-shot prompting",
+            def: "Asking a model to perform a task using instructions alone, without providing sample inputs or outputs in your prompt.",
+          },
         ],
       },
     ],
     quiz: [
       {
-        q: "Which prompt will produce the most useful result?",
+        q: "Which prompt is most likely to produce a focused, useful response?",
         options: [
           "'history project help'",
-          "'List 8 possible thesis statements about the causes of WWI for an 11th-grade debate class, ranked from safest to most controversial.'",
-          "'wwi stuff please'",
-          "'Write my entire project, I don't care how'",
+          "'List 6 possible thesis statements about the causes of World War I for an 11th-grade history debate, ordered from widely accepted to more debated.'",
+          "'wwi information please'",
+          "'Tell me everything about World War I'",
         ],
         answer: 1,
-        explain: "Specific task + context + format + a useful ranking constraint. That's the anatomy at work.",
+        explain:
+          "This prompt names a clear task, gives grade-level and class context, specifies the format (a list of 6), and explains how to organize them.",
       },
       {
-        q: "What does the CONSTRAINT ingredient do?",
+        q: "What is the purpose of adding constraints to a prompt?",
         options: [
-          "Makes the AI run faster",
-          "Sets guardrails: length limits, 'no jargon', 'hints only'",
-          "Chooses the AI's personality",
-          "Nothing — it's optional decoration",
+          "They make the computer's hardware run faster",
+          "They set clear boundaries, such as word limits, 'define technical terms,' or 'hints only'",
+          "They guarantee that every fact in the answer is verified",
+          "They replace the need to state a task",
         ],
         answer: 1,
-        explain: "Constraints fence in the output so you don't have to fence it in afterwards.",
+        explain:
+          "Constraints set boundaries on length, tone, or how much help you want so the response stays focused on your goal.",
       },
       {
-        q: "You keep re-prompting because outputs are 'not quite right.' The root cause is usually…",
+        q: "If you keep getting responses that feel too broad or slightly off-topic, what is usually the best first step?",
         options: [
-          "The AI is being difficult on purpose",
-          "Your prompt left gaps the model had to fill with guesses",
-          "You need a newer computer",
-          "The moon phase",
+          "Assume the model cannot answer questions on that subject",
+          "Check where your prompt left out details about the task, context, or format",
+          "Restart your browser and paste the exact same words",
+          "Remove all punctuation from your prompt",
         ],
         answer: 1,
-        explain: "Under-specified prompts get generic outputs. The fix is almost always in the prompt, not the model.",
+        explain:
+          "When key details are missing, the model has to guess what you want. Clarifying your task, context, or desired format usually improves the result.",
       },
     ],
   },
@@ -102,135 +133,167 @@ export const TOOLKIT_LESSONS: Lesson[] = [
     module: "toolkit",
     index: 1,
     kind: "lesson",
-    title: "Iterate Like a Pro",
-    subtitle: "The first output is a draft, not a destination",
-    hook: "Beginners accept the first answer. Pros treat AI like a sparring partner — pushing back, demanding options, and raising the bar round after round.",
+    title: "Improving Results Through Iteration",
+    subtitle: "Treating the first response as a starting point",
+    hook: "Your first prompt doesn't have to get everything right at once. Often, the most useful results come from reviewing the initial answer and following up with specific adjustments.",
     minutes: 7,
     xp: 120,
     blocks: [
       {
         type: "lead",
-        text: "Chat is a conversation, not a vending machine. The most powerful words in AI aren't in your first prompt — they're in your second and third: 'make it tighter,' 'argue the opposite,' 'what are you missing?'",
+        text: "Working with a chatbot is an iterative process. Once you see a first response, it becomes much easier to tell what needs adjusting, whether you want a simpler explanation, a different angle, or more concrete examples.",
       },
       {
         type: "list",
-        heading: "Four follow-up superpowers",
+        heading: "Four helpful ways to follow up",
         style: "bolt",
         items: [
-          { title: "Demand options", text: "'Give me 5 versions, from safest to wildest.' One output is a gamble; five is a menu." },
-          { title: "Critique the output", text: "'What are the weakest points in that plan?' The model is a shockingly good critic — even of itself." },
-          { title: "Change the altitude", text: "'Now explain it simpler' / 'now go deeper on step 2.' Zoom in and out until it clicks." },
-          { title: "Show, don't tell", text: "Paste an example of the style you want ('write headlines like THIS one') — few-shot examples beat adjectives." },
+          {
+            title: "Ask for distinct options",
+            text: "'Give me 4 different ways to structure this introduction, from straightforward to story-driven.' Comparing options helps you decide what works best.",
+          },
+          {
+            title: "Ask for targeted critique",
+            text: "'Point out two places in my outline where a skeptical reader might ask for stronger evidence.' Chatbots tend to be agreeable unless you ask specifically for weak spots, and you should still decide for yourself which suggestions make sense.",
+          },
+          {
+            title: "Adjust the level of detail",
+            text: "'Explain step 2 in simpler terms' or 'Go deeper into how this equation is derived.' You can zoom out for the big picture or zoom in on one confusing detail.",
+          },
+          {
+            title: "Include an example (few-shot prompting)",
+            text: "If you need a specific format or coding style, paste a short sample into your prompt. Showing a concrete example is often clearer than describing a style with adjectives.",
+          },
         ],
       },
       {
         type: "interactive",
         id: "scenario-deck",
-        title: "Lab: Rescue the chat",
-        caption: "Four conversations are going nowhere. At each fork, two follow-ups compete — one unlocks the machine, one wastes the round. Pick the strong move and feel the difference.",
+        title: "Lab: Guide the conversation",
+        caption:
+          "Each of these four conversations has stalled. Choose the follow-up prompt that gives clearer direction and leads to a more helpful response.",
       },
       {
         type: "text",
-        heading: "The chaining technique",
+        heading: "Breaking complex work into steps (prompt chaining)",
         body: [
-          "Big tasks crumble when you chain prompts: first 'help me brainstorm 10 angles,' then 'outline #3,' then 'draft section two,' then 'attack this draft as a skeptical teacher.' Each prompt stays small and sharp — and you stay in the director's chair the entire time.",
-          "Notice what's happening: the AI does the typing, but the decisions — angle, structure, standard of quality — stay with you. That's the line between using AI as a thinking amplifier and using it as a thinking replacement.",
+          "Large tasks are much easier to manage when you break them into a sequence of smaller prompts, sometimes called prompt chaining. For example, you might start by brainstorming possible angles, pick the one you like best, draft a section on your own, and then ask for feedback against your assignment rubric.",
+          "Notice who makes the decisions in that process. When you handle one small step at a time, you stay in charge of the ideas, structure, and final writing, using the tool to support your thinking rather than replace it.",
         ],
       },
       {
         type: "callout",
         variant: "key",
         title: "Key idea",
-        text: "Quality is a conversation. If the output disappoints you, the cheapest fix in the world is a better follow-up — it costs ten seconds.",
+        text: "Treat the first output as a rough starting point. If a response misses the mark, a specific follow-up explaining what to change is usually much more effective than starting over.",
       },
     ],
     scenarios: [
       {
-        setup: "You asked for essay feedback and got: 'This essay is excellent! Well done!' — but your gut says it's not.",
+        setup:
+          "You asked for feedback on your rough draft and got: 'This essay is well written! Great job!'—even though you know some parts are still weak.",
         choiceA: {
-          label: "Accept the compliment and submit",
+          label: "Take the compliment and turn in the draft as is",
           good: false,
-          feedback: "AI defaults to cheerleading when you don't demand rigor. You just burned your one revision window.",
+          feedback:
+            "Chatbots often default to polite praise unless you ask for specific areas to improve, which means you miss out on helpful revision ideas.",
         },
         choiceB: {
-          label: "'Stop being nice. Find my 3 weakest arguments and suggest a fix for each.'",
+          label:
+            "'Look closely at my reasoning. Point out my 3 weakest arguments and suggest how I could support each one better.'",
           good: true,
-          feedback: "Exactly. Demanding specific criticism converts flattery into fuel.",
+          feedback:
+            "Asking for specific weaknesses against clear criteria gives you actionable feedback you can evaluate and use as you revise.",
         },
       },
       {
-        setup: "The AI's speech outline is boring — a generic intro, three generic points, done.",
+        setup:
+          "You asked for ideas to organize a class presentation, and the response is a predictable three-point outline that feels dull.",
         choiceA: {
-          label: "'Give me 4 alternative outlines — one funny, one story-driven, one debate-style, one minimal.'",
+          label:
+            "'Give me 4 alternative ways to organize this talk: one built around a case study, one structured as a question-and-answer, one comparing two viewpoints, and one concise overview.'",
           good: true,
-          feedback: "Options unlock taste. You can't pick a great structure from a menu of one.",
+          feedback:
+            "Asking for distinct structures gives you real options to compare and adapt for your audience.",
         },
         choiceB: {
-          label: "Shrug and make slides for the boring outline",
+          label: "Settle for the dull outline and start making slides anyway",
           good: false,
-          feedback: "Generic in, generic out. Your audience deserved one more round of iteration.",
+          feedback:
+            "Accepting a generic first attempt makes it harder to keep your audience engaged when one quick follow-up could have surfaced better structures.",
         },
       },
       {
-        setup: "The explanation of mitosis reads like a textbook swallowed a textbook.",
+        setup:
+          "You asked for an explanation of mitosis, and the response is packed with dense terminology that is hard to follow.",
         choiceA: {
-          label: "Read it five times and hope it sticks",
+          label: "Reread the same paragraph five times and hope you remember it",
           good: false,
-          feedback: "Rereading is the weakest study move known to science — and the fix was one sentence away.",
+          feedback:
+            "Passively rereading confusing text is much less effective than asking for a clearer explanation and testing your understanding.",
         },
         choiceB: {
-          label: "'Re-explain it as a heist story. Then quiz me with 5 questions.'",
+          label:
+            "'Explain mitosis step by step using an everyday analogy, define each key term in plain language, and then ask me 4 review questions.'",
           good: true,
-          feedback: "Altitude change plus retrieval practice. Two pro moves in one message.",
+          feedback:
+            "Adjusting the explanation level and adding practice questions helps you understand the concept and check what you actually retained.",
         },
       },
       {
-        setup: "You need AI-assisted code to match your teacher's style guide, but the output looks nothing like class examples.",
+        setup:
+          "You asked for help formatting practice code to match your computer science class's style guide, but the variable names and comments don't look like your class examples.",
         choiceA: {
-          label: "Paste a class example: 'Match THIS style exactly — naming, comments, indentation. Rewrite.'",
+          label:
+            "Paste a sample from class: 'Follow the exact naming conventions, comment style, and indentation shown in this example.'",
           good: true,
-          feedback: "Few-shot power: one real example outperforms a paragraph of adjectives.",
+          feedback:
+            "Providing a concrete example (few-shot prompting) shows the exact pattern you want much more clearly than general descriptions.",
         },
         choiceB: {
-          label: "Add the word 'simpler' and re-roll the dice",
+          label: "Reply 'make it cleaner' and hope it matches your teacher's rules",
           good: false,
-          feedback: "'Simpler' is a vibe, not a spec. An example IS the spec.",
+          feedback:
+            "'Cleaner' means different things in different coding guides. Sharing an actual example removes the guesswork.",
         },
       },
     ],
     quiz: [
       {
-        q: "The AI's first answer is mediocre. The pro move is to…",
+        q: "When an AI tool's first response is too generic, what is usually the most effective next move?",
         options: [
-          "Give up — first answers are final",
-          "Push back with specific follow-ups: options, critique, altitude changes",
-          "Type the same prompt again louder",
-          "Switch to a different website immediately",
+          "Stop there, since follow-up messages rarely change the result",
+          "Follow up with specific directions, such as asking for alternatives, examples, or a different level of detail",
+          "Submit the exact same prompt again in all capital letters",
+          "Accept the generic version without changing anything",
         ],
         answer: 1,
-        explain: "The conversation IS the tool. Follow-ups are free and unlimited — use them.",
+        explain:
+          "Specific follow-up prompts let you steer the conversation, adjust the depth, or compare alternatives based on what was missing in the first answer.",
       },
       {
-        q: "What's 'chaining'?",
+        q: "What is prompt chaining?",
         options: [
-          "Copying AI output into another AI",
-          "Locking the AI so it can't change topics",
-          "Breaking a big task into a sequence of small, sharp prompts where you direct each step",
-          "Using the same prompt every day",
+          "Pasting the exact same prompt into five different chatbots at once",
+          "Combining ten unrelated questions into one long paragraph",
+          "Breaking a complex task into a sequence of smaller, focused prompts that you guide step by step",
+          "Repeating a question until you get a shorter answer",
         ],
         answer: 2,
-        explain: "Small sharp prompts + human direction beats one giant vague prompt every time.",
+        explain:
+          "Prompt chaining splits a big project into manageable steps so you can review and direct the work at each stage.",
       },
       {
-        q: "'Few-shot' means…",
+        q: "What does 'few-shot prompting' mean?",
         options: [
-          "You only get a few attempts",
-          "You show the AI examples of what you want inside your prompt",
-          "The AI takes a few shots at guessing your grade",
-          "A type of energy drink",
+          "You are only allowed a few questions per session",
+          "You include a few examples of the pattern or style you want inside your prompt",
+          "You keep your prompt under five words",
+          "You ask the model to guess your question without context",
         ],
         answer: 1,
-        explain: "Examples in the prompt are the strongest steering signal that exists.",
+        explain:
+          "In few-shot prompting, you provide sample inputs or outputs in your prompt so the model can follow that pattern.",
       },
     ],
   },
@@ -239,92 +302,115 @@ export const TOOLKIT_LESSONS: Lesson[] = [
     module: "toolkit",
     index: 2,
     kind: "lesson",
-    title: "Trust Nothing, Verify Everything",
-    subtitle: "Hallucinations, fake facts, and the 60-second check",
-    hook: "AI can lie to you with total confidence and perfect grammar. Not on purpose — it literally can't tell the difference. That means the truth-checker's job… is yours.",
+    title: "Verifying AI-Generated Information",
+    subtitle: "Spotting errors, checking sources, and reading laterally",
+    hook: "A chatbot can present an inaccurate date, statistic, or citation in clear, confident prose. Because the model doesn't automatically know when it is wrong, checking important claims is up to you.",
     minutes: 8,
     xp: 120,
     blocks: [
       {
         type: "lead",
-        text: "Remember: the model writes what's plausible, not what's verified. Most of the time plausible and true overlap. The danger zone is specifics — dates, names, quotes, statistics, citations — where a wrong answer looks exactly as polished as a right one.",
+        text: "Language models generate text by predicting likely continuations, which means accurate facts and invented details can look equally polished on screen. General explanations of common topics are often helpful, but specific claims—such as dates, quotes, statistics, and citations—always need an outside check.",
       },
       {
-        type: "stat",
-        stats: [
-          { value: "2", label: "US lawyers sanctioned for filing ChatGPT-invented court cases" },
-          { value: "~60s", label: "to verify a specific claim with a quick search" },
-          { value: "∞", label: "how confident a model sounds while being wrong" },
+        type: "text",
+        heading: "A real-world lesson from a federal courtroom",
+        body: [
+          "In 2023, attorneys in a U.S. federal court case submitted a legal brief citing six court decisions generated with ChatGPT. None of those six cases actually existed; the case names, citations, and internal quotes had been fabricated.",
+          "When one of the attorneys had asked the chatbot whether the cases were real, it assured him they were and could be found in standard legal databases. A federal judge ultimately sanctioned two lawyers and their firm—a memorable reminder that polished formatting and confident reassurance are no substitute for checking original sources.",
         ],
-        note: "Real case: a 2023 federal filing cited six court decisions that never existed. The lawyers trusted fluency. The judge was not amused.",
       },
       {
         type: "steps",
-        heading: "The 60-second verification move",
+        heading: "A practical four-step verification check",
         steps: [
-          { title: "Spot the checkable claim", text: "Dates, quotes, statistics, study results, 'a paper by…', court cases, historical specifics." },
-          { title: "Leave the chat", text: "Don't ask the AI 'are you sure?' — it will say yes with the same confidence. Search an independent source." },
-          { title: "Trace to the origin", text: "Find the primary source: the actual paper, the official page, the original quote. One click away beats ten AI answers." },
-          { title: "Treat AI as a tip-off", text: "Use its output as a list of leads — 'claims to investigate' — not as the final word." },
+          {
+            title: "Spot specific, checkable claims",
+            text: "Pay close attention to dates, numbers, direct quotes, study findings, named articles, court cases, and historical details.",
+          },
+          {
+            title: "Step outside the chat",
+            text: "Don't rely on asking the chatbot, 'Are you sure?' It may confidently repeat an error—or even back down from a correct answer. Open a search engine or library database instead.",
+          },
+          {
+            title: "Trace the claim to its source",
+            text: "Find the primary source: the actual published paper, official agency dataset, or original text, rather than a secondhand summary.",
+          },
+          {
+            title: "Treat AI output as a starting lead",
+            text: "Use the response to gather search terms and ideas to investigate, then rely on and cite the verified sources you actually read.",
+          },
         ],
       },
       {
         type: "interactive",
         id: "hallucination-hunt",
-        title: "Lab: Source Check — hunt the fakes",
-        caption: "Six AI-generated claims below. Some are true; some are hallucinated — invented facts wearing a tuxedo. Flag every fake. Catch all six to earn the Hallucination Hunter badge.",
+        title: "Lab: Source Check",
+        caption:
+          "Review the six AI-generated claims below. Some are accurate, while others contain fabricated facts or sources. Flag every inaccurate claim to earn the Hallucination Hunter badge.",
       },
       {
         type: "callout",
         variant: "warn",
-        title: "The confidence trap",
-        text: "There is zero correlation between how confidently an AI states something and whether it's true. None. Retrain your instincts: smooth, specific, and confident is exactly what a hallucination looks like.",
+        title: "Why tone isn't evidence",
+        text: "How confident a chatbot sounds is not a reliable indicator of whether it is right. Sometimes a model expresses uncertainty, and other times it states a completely invented citation as plain fact. Judge a claim by outside evidence, not by how smoothly it reads.",
       },
       {
         type: "list",
         heading: "Your verification toolkit",
         style: "check",
         items: [
-          { text: "Lateral reading: open new tabs; check what OTHER sources say about a claim instead of staring at this one." },
-          { text: "Reverse-search stats and quotes — real ones leave trails; invented ones evaporate." },
-          { text: "For schoolwork, library databases and .edu/.gov sources outrank any chatbot — and any random blog." },
-          { text: "When the AI says 'studies show…', the study name is the first thing you verify." },
+          {
+            text: "Read laterally: open a new tab and check what independent, reputable sources say about the claim or source.",
+          },
+          {
+            text: "Search exact quotes and statistics: real quotes and published numbers usually trace back to original documents, while invented ones leave no trail.",
+          },
+          {
+            text: "Use strong reference sources: school library databases, peer-reviewed journals, and official government or university publications are much more reliable than unverified chat output.",
+          },
+          {
+            text: "Question vague phrases like 'studies show': look up the specific authors, journal, and year, and verify what the researchers actually found.",
+          },
         ],
       },
     ],
     quiz: [
       {
-        q: "An AI cites 'Martinez et al., 2021, Journal of Applied Psychology.' Your move?",
+        q: "A chatbot cites 'Martinez et al., 2021, Journal of Applied Psychology.' What should you do before using that source?",
         options: [
-          "Cite it — AI wouldn't invent formatting that precise",
-          "Search for the actual paper before citing — invented citations look exactly this real",
-          "Ask the AI if it's real and trust the answer",
-          "Change the year to be safe",
+          "Include it in your bibliography since the citation format looks complete",
+          "Search a library database or academic index to confirm the paper exists and actually says what the chatbot claims",
+          "Ask the chatbot 'Is this a real paper?' and rely on its answer",
+          "Remove the year so you don't have to verify the exact issue",
         ],
         answer: 1,
-        explain: "Fabricated citations are the classic hallucination. Verify against the real world, not against the AI's own confidence.",
+        explain:
+          "Language models can generate realistic-looking citations for articles that do not exist, or misstate what a real article says. Always verify the actual source.",
       },
       {
-        q: "Why is asking 'are you sure?' a weak verification strategy?",
+        q: "Why is asking a chatbot 'Are you sure?' an unreliable way to check a fact?",
         options: [
-          "The AI gets offended",
-          "The AI confirms with the same confidence whether it's right or wrong",
-          "It costs money",
-          "It deletes the conversation",
+          "It uses too many tokens to run a search",
+          "The model can sound just as confident repeating an inaccurate claim—or apologize when it was actually right",
+          "It automatically erases your previous prompts",
+          "Chatbots are programmed to refuse follow-up questions about facts",
         ],
         answer: 1,
-        explain: "Confidence is not an instrument. Verification must come from independent sources.",
+        explain:
+          "Asking the same model to confirm its own claim does not replace independent evidence. Real verification requires checking reliable outside sources.",
       },
       {
-        q: "The healthiest way to use AI-generated facts is as…",
+        q: "What is the safest way to treat specific facts or sources suggested by a chatbot?",
         options: [
-          "Final answers to copy into homework",
-          "Leads to investigate through real sources",
-          "Proof that the fact is true",
-          "Things to memorize before bed",
+          "As verified quotations ready to paste into an assignment",
+          "As starting leads that you verify using reliable primary or reference sources",
+          "As proof that no further research is needed",
+          "As guaranteed summaries of peer-reviewed databases",
         ],
         answer: 1,
-        explain: "AI is a world-class lead generator and a world-class confabulator. Treat outputs accordingly.",
+        explain:
+          "Chatbots can help point you toward topics and terms to search, but any factual claim you rely on should be confirmed in a trustworthy source.",
       },
     ],
   },
@@ -333,86 +419,104 @@ export const TOOLKIT_LESSONS: Lesson[] = [
     module: "toolkit",
     index: 3,
     kind: "lesson",
-    title: "Study Moves That Actually Work",
-    subtitle: "Turn AI into a tutor, sparring partner, and quiz-master",
-    hook: "Here's the plot twist: the highest-value AI uses produce LESS typing from the machine and MORE thinking from you. These five moves turn a chatbot into the best study partner you've ever had.",
+    title: "Using AI to Study Effectively",
+    subtitle: "Turning a chatbot into a practice and review partner",
+    hook: "You learn the most when you actively work through ideas yourself. Used thoughtfully, AI can generate practice questions, analogies, and feedback while keeping your own thinking at the center.",
     minutes: 7,
     xp: 120,
     blocks: [
       {
         type: "lead",
-        text: "Cognitive science is brutally clear on what builds memory: retrieval practice (pulling answers OUT of your brain), spacing, and getting corrective feedback. Notice what all three need? You, thinking. AI's superpower is manufacturing unlimited chances for exactly that.",
+        text: "Research in cognitive psychology points to a few study habits that consistently build long-term understanding: retrieval practice (recalling information from memory rather than just rereading), spacing study sessions over time, and checking your mistakes with feedback. All three require active effort from you. AI can help create extra opportunities to practice—as long as you ground it in your class notes, double-check explanations that seem off, and follow your teacher's rules.",
       },
       {
         type: "list",
-        heading: "The five moves",
+        heading: "Five active study strategies",
         style: "bolt",
         items: [
-          { title: "The Socratic Tutor", text: "'Don't tell me the answer. Ask me questions that lead me to it.' Turns AI from answer-machine into thinking gym." },
-          { title: "The Quiz-Master", text: "'Here's my chapter. Generate 10 practice questions, mix easy and brutal, don't show answers until I commit.' Infinite practice tests, zero photocopies." },
-          { title: "The Rubber Duck", text: "Explain the concept TO the AI and have it hunt the gaps in your explanation. Teaching is the strongest learning move there is." },
-          { title: "The Translator", text: "'Explain entropy like I'm into cooking / basketball / music.' Analogy on demand — the fix when the textbook's explanation doesn't fit your brain." },
-          { title: "The Ruthless Editor", text: "'Here's my draft. Don't rewrite it — tell me the 3 weakest spots and ask me questions that force me to fix them myself.' Feedback without ghostwriting." },
+          {
+            title: "Guided questioning (Socratic style)",
+            text: "'I'm stuck on this quadratic equation. Don't give me the answer—ask me guiding questions one step at a time.' This helps you work through the reasoning yourself.",
+          },
+          {
+            title: "Custom practice quizzes",
+            text: "Paste in your study guide or notes and ask: 'Create 8 practice questions of mixed difficulty. Ask them one at a time and wait for my response before explaining.' Check any surprising answers against your textbook.",
+          },
+          {
+            title: "Explain it in your own words",
+            text: "Write out your own explanation of a concept, share your textbook definition, and ask the model to point out anything unclear or missing in your version. Explaining an idea is a great way to spot gaps in your understanding.",
+          },
+          {
+            title: "Tailored analogies",
+            text: "'Explain entropy using an analogy from cooking or basketball, then connect each part of the analogy back to the actual physics terms.' Linking new concepts to familiar ideas can make abstract topics click.",
+          },
+          {
+            title: "Focused feedback without rewriting",
+            text: "'Read my rough draft, identify 3 places where my evidence or reasoning is unclear, and ask me questions to help me revise them myself. Do not rewrite my sentences.' You get constructive feedback while keeping your own voice.",
+          },
         ],
       },
       {
         type: "compare",
-        heading: "Same tool, opposite outcomes",
+        heading: "Two ways to approach the same assignment",
         weak: {
-          label: "Brain OFF",
-          text: "'Write my essay on Macbeth.' You learn nothing, risk everything (that's the next module), and show up to the exam with an empty tank.",
+          label: "Skipping the thinking",
+          text: "'Write my essay on ambition in Macbeth.' Turning in AI-written work violates academic integrity rules in most classes, and it leaves you unprepared when you have to discuss or test on the play yourself.",
         },
         strong: {
-          label: "Brain ON",
-          text: "'Quiz me on Macbeth themes until I miss twice, then explain what I missed differently.' You walk into the exam loaded.",
+          label: "Supporting your thinking",
+          text: "'Here are my notes on ambition in Macbeth. Quiz me with 5 short-answer questions one at a time, and tell me which scenes or details I should review when my answer is incomplete.'",
         },
-        note: "The machine types either way. The difference is entirely who does the thinking.",
+        note: "Both prompts use the same tool, but only the second one builds your own knowledge and skills.",
       },
       {
         type: "callout",
         variant: "nova",
-        title: "NOVA says",
-        text: "Steal these prompts as starter code. The real pro move is remixing them into versions tuned to how YOUR brain works.",
+        title: "NOVA's tip",
+        text: "Try pasting your own class notes or vocabulary list into these study prompts. Giving the model your exact course material keeps practice questions focused on what your class covers and reduces factual slip-ups.",
       },
       {
         type: "quote",
-        text: "AI should lower the effort of typing and raise the quality of thinking. If it's doing the reverse, you're holding it wrong.",
-        cite: "Print this on your forearm",
+        text: "A good study tool reduces busywork while asking you to think more deeply—not the other way around.",
+        cite: "A practical rule of thumb for studying with AI",
       },
     ],
     quiz: [
       {
-        q: "Which request will most improve what you actually remember tomorrow?",
+        q: "Which study prompt is most likely to help you remember a chapter on tomorrow's quiz?",
         options: [
-          "'Summarize chapter 4 so I can skim it instead of reading'",
-          "'Quiz me on chapter 4 and explain whatever I get wrong'",
-          "'Write my chapter 4 notes for me'",
-          "'What's chapter 4 about, in one sentence'",
+          "'Summarize chapter 4 in three sentences so I don't have to read it'",
+          "'Using my notes from chapter 4 below, quiz me one question at a time and explain anything I miss'",
+          "'Write a set of chapter 4 study notes for me'",
+          "'List the headings in chapter 4'",
         ],
         answer: 1,
-        explain: "Retrieval practice + corrective feedback is the learning combo backed by the most research.",
+        explain:
+          "Actively recalling answers from memory (retrieval practice) and reviewing feedback on your mistakes strengthens memory far more than passively skimming a summary.",
       },
       {
-        q: "The pattern across all five study moves is…",
+        q: "What do all five active study strategies in this lesson have in common?",
         options: [
-          "The AI does all the work so you don't have to",
-          "The AI manufactures situations where YOU have to think",
-          "Longer prompts get better grades",
-          "Each one requires a paid subscription",
+          "They let the AI complete the assignment so you can save time",
+          "They use AI to set up questions, analogies, or feedback where you still do the thinking",
+          "They require writing prompts that are at least 500 words long",
+          "They replace the need to read your textbook or class notes",
         ],
         answer: 1,
-        explain: "Quizzing, critiquing, translating, gap-hunting — every move puts your brain on the hook.",
+        explain:
+          "Whether you are answering quiz questions, explaining a concept in your own words, or revising from feedback, real learning happens when you actively process the material.",
       },
       {
-        q: "'Explain this like I'm a chef' is powerful because…",
+        q: "Why can asking for an analogy tied to something you know well (like cooking or sports) help you learn a tough concept?",
         options: [
-          "Chefs are smart",
-          "Analogies attach new ideas to knowledge you already have",
-          "It shortens the text",
-          "It makes the AI hungrier",
+          "Analogies replace technical definitions on science exams",
+          "Connecting unfamiliar ideas to concepts you already understand makes new material easier to grasp",
+          "It forces the model to verify its facts in an outside database",
+          "Short analogies guarantee there are no oversimplifications",
         ],
         answer: 1,
-        explain: "Anchoring new concepts to existing mental models is one of the fastest routes to real understanding.",
+        explain:
+          "Analogies help bridge what you already know and a new concept—especially when you also connect the analogy back to the actual course terms.",
       },
     ],
   },
@@ -421,85 +525,92 @@ export const TOOLKIT_LESSONS: Lesson[] = [
     module: "toolkit",
     index: 4,
     kind: "boss",
-    title: "The Prompt Arena",
-    subtitle: "Synthesize everything: prompt anatomy, iteration, verification",
-    hook: "The arena gate is open. Six questions stand between you and a lit second layer on your neural build. Combo up.",
+    title: "Toolkit Challenge",
+    subtitle: "Review prompt design, iteration, verification, and study strategies",
+    hook: "Ready to put Module 02 together? Answer these six questions to test your skills and unlock the second layer of your network.",
     minutes: 5,
     xp: 300,
     blocks: [
       {
         type: "lead",
-        text: "Boss fight two. Six questions on the full toolkit — prompt ingredients, follow-up craft, verification discipline, and study mechanics. Combos multiply your XP; misses just cost you the chain, not the run.",
+        text: "This six-question challenge reviews the main skills from Module 02: writing clear prompts, refining results with follow-ups, verifying factual claims, and using AI to support active studying.",
       },
       {
         type: "callout",
         variant: "nova",
-        title: "Boss rules",
-        text: "Chain correct answers for +12 XP per combo step. Clear the arena to ignite Layer 02 of your neural build and bank 300 base XP.",
+        title: "Challenge rules",
+        text: "Consecutive correct answers build your combo for +12 bonus XP per step. Missing a question resets your combo, though you can retry it. Complete all six questions to earn 300 base XP and unlock Layer 02 of your network.",
       },
     ],
     quiz: [
       {
-        q: "The five prompt ingredients are Role, Task, Context, Format, and…",
-        options: ["Emojis", "Constraints", "Compliments", "Capital letters"],
+        q: "In this module's framework, the five parts of a clear prompt are Role, Task, Context, Format, and…",
+        options: ["Praise", "Constraints", "Capital letters", "Search links"],
         answer: 1,
-        explain: "Constraints are the guardrails — length, style bans, 'hints only'. Without them you're rolling dice.",
+        explain:
+          "Constraints set helpful boundaries—such as length limits, 'define technical terms,' or 'give hints only.'",
       },
       {
-        q: "Which follow-up improves output the most?",
+        q: "Which follow-up prompt is most likely to help you improve a weak outline?",
         options: [
           "'Try again'",
-          "'Thanks'",
-          "'Argue against your own answer, then fix the three weakest points you found'",
-          "'please please please'",
+          "'Looks good, thanks'",
+          "'Identify the three weakest points in this outline and suggest what evidence or examples would make them stronger'",
+          "'Make it better please'",
         ],
         answer: 2,
-        explain: "Self-critique + targeted repair converts one mediocre draft into a strong one.",
+        explain:
+          "Asking for specific weaknesses and targeted improvements gives you concrete ideas to evaluate, whereas vague requests like 'try again' leave the goal unclear.",
       },
       {
-        q: "AI gives you a dazzling statistic for your presentation. Before using it you should…",
+        q: "A chatbot gives you a striking statistic for a class presentation. What should you do before putting it on a slide?",
         options: [
-          "Screenshot the chat as your citation",
-          "Trace it to the original source — no source, no stat",
-          "Round it to a nicer number",
-          "Add 'approximately' and move on",
+          "Take a screenshot of the chat as your source citation",
+          "Track down the original study or official dataset to confirm the number is real and accurately described",
+          "Round the number slightly so it sounds more approximate",
+          "Keep it as long as the chatbot named an organization",
         ],
         answer: 1,
-        explain: "Unverifiable statistics are hallucination bait. The origin or the bin.",
+        explain:
+          "Chatbots can invent or misquote statistics even while naming real organizations. If you cannot verify a statistic in a reliable original source, do not use it.",
       },
       {
-        q: "Fluency and accuracy in AI output are…",
+        q: "In AI-generated writing, fluency and factual accuracy are…",
         options: [
-          "The same thing",
-          "Guaranteed together",
-          "Independent — smooth writing says nothing about truth",
-          "Only linked on weekends",
+          "Always identical",
+          "Guaranteed whenever a citation is included",
+          "Separate qualities—clear, confident writing can still contain factual errors",
+          "Easy to tell apart just by checking grammar",
         ],
         answer: 2,
-        explain: "The model optimizes for plausible language. Truth-checking is your department.",
+        explain:
+          "A language model can produce smooth, grammatical prose whether a specific claim is accurate or mistaken, which is why outside verification matters.",
       },
       {
-        q: "The strongest AI study pattern is…",
+        q: "Which pattern represents the most effective way to study with AI?",
         options: [
-          "AI types, you copy, teacher grades",
-          "AI generates retrieval practice and feedback while you do the thinking",
-          "You memorize the AI's summaries",
-          "You avoid AI entirely",
+          "Having AI write your homework answers while you copy them down",
+          "Using AI to generate retrieval practice and feedback while you recall and work through the answers yourself",
+          "Memorizing AI summaries instead of reading assigned texts",
+          "Asking AI to rewrite your rough drafts from scratch",
         ],
         answer: 1,
-        explain: "Use the machine to create thinking reps, not to skip them.",
+        explain:
+          "Active recall, working through problems step by step, and revising your own work build genuine understanding that sticks on exams and in class.",
       },
       {
-        q: "Your prompt output is generic. First suspect?",
+        q: "If a prompt produces a vague, generic response, what is the first thing you should check?",
         options: [
-          "The model is tired",
-          "Your prompt under-specified task, context, or format",
-          "Mercury retrograde",
-          "Too much context",
+          "Whether the server is running slowly",
+          "Whether your prompt left out key details about the task, context, or desired format",
+          "Whether you forgot to say 'please'",
+          "Whether your device screen is too small",
         ],
         answer: 1,
-        explain: "Generic prompts are the number-one cause of generic outputs. Spec it tighter.",
+        explain:
+          "Vague prompts leave the model to guess what you want. Adding clearer context, format instructions, or constraints is usually the quickest fix.",
       },
     ],
   },
 ];
+```
