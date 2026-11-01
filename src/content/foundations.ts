@@ -308,7 +308,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         heading: "Tokens: the building blocks of AI text",
         body: [
           "Language models don't read text letter by letter or always word by word. They work with tokens, which are chunks of text. A token might be a whole word like \"the,\" part of a word like \"believ,\" a number, or a punctuation mark. Your message is split into tokens, each token is turned into numbers, and those numbers pass through a very large neural network.",
-          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none. (These numbers are just an illustration.)",
+          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none.",
         ],
       },
       {
@@ -321,7 +321,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         type: "text",
         heading: "Why does it sound so knowledgeable?",
         body: [
-          "Human writing contains a lot of knowledge. To predict the next word well across millions of topics, a model has to pick up grammar, facts, common lines of reasoning, and writing styles. All of this is stored as patterns in its weights.",
+          "Human writing contains a lot of knowledge. To predict the next word well across millions of topics, a model has to pick up grammar, facts, common lines of reasoning, and writing styles. All of this is stored as patterns.",
           "However, a language model doesn't automatically check whether what it writes is true. It produces text that is likely, based on patterns, which is not the same as text that has been verified. A made-up citation for a book that doesn't exist is produced by exactly the same process as a real one. Some chatbots can search the web or use other tools to help, but they can still make mistakes.",
         ],
       },
