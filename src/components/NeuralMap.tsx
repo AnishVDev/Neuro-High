@@ -501,7 +501,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           </div>
         )}
 
-        <p className="border-t-2 border-ink bg-paper px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
+        <p className="bg-paper px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
           Progress saves in this browser · Nothing is locked · Build at your pace
         </p>
 
