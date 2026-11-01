@@ -51,7 +51,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
   const [hoveredSlug, setHoveredSlug] = useState<string | null>(null);
   const [focusedSlug, setFocusedSlug] = useState<string | null>(null);
 
-  const xp = state?.learner.xp ?? 0;
+  const xp = state?.learner?.xp ?? 0;
   const rank = rankFor(xp);
   const upcomingRank = nextRank(xp);
 
@@ -72,7 +72,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           complete: nodes.length > 0 && cleared === nodes.length,
         };
       }),
-    [isCompleted],
+    [isCompleted, state],
   );
 
   const allNodes = layers.flatMap((layer) =>
@@ -92,12 +92,13 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
     (node) => node.lesson.slug === activeSlug,
   );
 
+  const rankSpan = upcomingRank ? upcomingRank.minXp - rank.minXp : 0;
   const rankProgress = upcomingRank
     ? Math.max(
         0,
         Math.min(
           100,
-          ((xp - rank.minXp) / (upcomingRank.minXp - rank.minXp)) * 100,
+          rankSpan > 0 ? ((xp - rank.minXp) / rankSpan) * 100 : 100,
         ),
       )
     : 100;
@@ -170,25 +171,24 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </p>
           </div>
 
-            {/* Small NOVA briefing */}
-            {!compact && (
-              <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
-                <Image
-                  src="/img/nova-bot.png"
-                  alt="NOVA, your AI copilot"
-                  width={56}
-                  height={56}
-                  className="size-14 shrink-0 rounded-lg border-2 border-ink bg-cream object-cover"
-                />
-                <div className="min-w-0">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-coral">
-                    NOVA // field note
-                  </p>
-                  <p className="mt-1 text-xs leading-snug text-ink/75">{novaHint}</p>
-                </div>
+          {/* Small NOVA briefing */}
+          {!compact && (
+            <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
+              <Image
+                src="/img/nova-bot.png"
+                alt="NOVA, your AI copilot"
+                width={56}
+                height={56}
+                className="size-14 shrink-0 rounded-lg border-2 border-ink bg-cream object-cover"
+              />
+              <div className="min-w-0">
+                <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-coral">
+                  NOVA // field note
+                </p>
+                <p className="mt-1 text-xs leading-snug text-ink/75">{novaHint}</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </header>
 
         {/* Prominent next mission */}
