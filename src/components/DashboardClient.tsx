@@ -106,11 +106,6 @@ export default function DashboardClient() {
         </Link>
       )}
 
-      {/* neural map */}
-      <div className="mt-8">
-        <NeuralMap />
-      </div>
-
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <section>
           <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Badge shelf</h2>
