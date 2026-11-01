@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { Check, Skull } from "lucide-react";
 import { MODULES, lessonPath, lessonsOf } from "@/content";
 import { useProgress } from "./ProgressProvider";
+import { Check, Skull, Zap } from "lucide-react";
+import { rankFor } from "@/lib/gamification";
 
 /**
  * The signature mechanic: your progress literally builds a neural network.
@@ -25,7 +27,9 @@ function nodeYs(count: number): number[] {
 }
 
 export default function NeuralMap({ compact = false }: { compact?: boolean }) {
-  const { isCompleted, loading } = useProgress();
+  const { state, isCompleted, loading } = useProgress();
+  const xp = state?.learner.xp ?? 0;
+  const rank = rankFor(xp);
 
   const layers = useMemo(
     () =>
@@ -58,6 +62,12 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-aqua">Your neural build</p>
           <p className="mt-1 font-display text-2xl font-extrabold tracking-tight">
             Network integrity: <span className="text-lime">{integrity}%</span>
+          </p>
+          <p className="mt-2 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-paper/60">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-lime/40 bg-lime/10 px-2.5 py-1 font-bold text-lime">
+              <Zap className="size-3.5" /> {loading ? "—" : xp.toLocaleString()} XP
+            </span>
+            <span>{loading ? "syncing…" : rank.name}</span>
           </p>
         </div>
         <div className="flex gap-3 font-mono text-[10px] uppercase tracking-wider text-paper/50">
