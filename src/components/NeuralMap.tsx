@@ -222,46 +222,6 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           </div>
         </header>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 border-b-2 border-ink bg-white sm:grid-cols-4">
-          <div className="neural-stat">
-            <p className="font-display text-3xl font-extrabold">
-              {loading || !state ? "—" : `${integrity}%`}
-            </p>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/55">
-              Network integrity
-            </p>
-          </div>
-
-          <div className="neural-stat">
-            <p className="font-display text-3xl font-extrabold">
-              {loading || !state ? "—" : `${cleared}/${total}`}
-            </p>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/55">
-              Missions cleared
-            </p>
-          </div>
-
-          <div className="neural-stat">
-            <p className="font-display text-3xl font-extrabold">
-              {loading || !state ? "—" : `${energizedLayers}/${layers.length}`}
-            </p>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/55">
-              Layers energized
-            </p>
-          </div>
-
-          <div className="neural-stat">
-            <p className="flex items-center gap-1.5 font-display text-3xl font-extrabold">
-              <Flame className="size-6 text-coral" aria-hidden="true" />
-              {loading || !state ? "—" : streak}
-            </p>
-            <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/55">
-              Day streak
-            </p>
-          </div>
-        </div>
-
         {/* Prominent next mission */}
         {!compact && (
           <div className="border-b-2 border-ink bg-lime p-4 sm:p-5">
