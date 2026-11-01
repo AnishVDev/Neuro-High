@@ -8,76 +8,208 @@ import { useProgress } from "../ProgressProvider";
 type Chip = { id: string; text: string; pts: number; note: string };
 type Slot = { id: string; name: string; q: string; color: string; chips: Chip[] };
 
+// Base score plus the highest-scoring chip in each slot (16 + 84) = 100.
+const BASE_SCORE = 16;
+
 const SLOTS: Slot[] = [
   {
     id: "role",
     name: "Role",
-    q: "Who should it be?",
+    q: "Who should the AI act as?",
     color: "#7B5CFF",
     chips: [
-      { id: "r0", text: "— skip role —", pts: 0, note: "No role = default generic assistant voice." },
-      { id: "r1", text: "You are an AI assistant.", pts: 2, note: "That's its factory settings. Adds nothing." },
-      { id: "r2", text: "You are a world-famous scientist.", pts: 6, note: "Fancy — but 'famous' isn't a teaching method." },
-      { id: "r3", text: "You are a patient Socratic tutor for a 10th-grade biology student.", pts: 16, note: "Role + audience + method. The model now knows exactly how to behave." },
+      {
+        id: "r0",
+        text: "— skip role —",
+        pts: 0,
+        note: "Without a role, the AI uses its general default voice.",
+      },
+      {
+        id: "r1",
+        text: "You are an AI assistant.",
+        pts: 2,
+        note: "This is already the default, so it adds almost no direction.",
+      },
+      {
+        id: "r2",
+        text: "You are a world-famous scientist.",
+        pts: 6,
+        note: "This sets a tone, but it does not explain how the AI should teach.",
+      },
+      {
+        id: "r3",
+        text: "You are a patient Socratic tutor for a 10th-grade biology student.",
+        pts: 16,
+        note: "This names a role, an audience, and a teaching method. The AI has a clear sense of how to respond.",
+      },
     ],
   },
   {
     id: "task",
     name: "Task",
-    q: "The exact verb",
+    q: "What exactly should it do?",
     color: "#43D9FF",
     chips: [
-      { id: "t0", text: "— skip task —", pts: 0, note: "No task? The model will invent one. Bold strategy." },
-      { id: "t1", text: "Help me with biology.", pts: 3, note: "A vibe, not a task. 'Help' can mean anything." },
-      { id: "t2", text: "Explain cellular respiration.", pts: 8, note: "A real verb — but how? For whom? To what depth?" },
-      { id: "t3", text: "Quiz me with 10 questions on cellular respiration, from easy to brutal.", pts: 20, note: "Verb + quantity + difficulty ramp. Zero ambiguity." },
-      { id: "t4", text: "Write my lab report for me.", pts: 1, note: "Off-task AND an integrity foul. The Forge docks signal for that." },
+      {
+        id: "t0",
+        text: "— skip task —",
+        pts: 0,
+        note: "Without a task, the AI has to choose one for you, which may not be what you wanted.",
+      },
+      {
+        id: "t1",
+        text: "Help me with biology.",
+        pts: 3,
+        note: "This describes a general subject, not a specific action. 'Help' could mean many things.",
+      },
+      {
+        id: "t2",
+        text: "Explain cellular respiration.",
+        pts: 8,
+        note: "This names a clear action, but it does not say how detailed the explanation should be or who it is for.",
+      },
+      {
+        id: "t3",
+        text: "Quiz me with 10 questions on cellular respiration, from easy to brutal.",
+        pts: 20,
+        note: "This gives an action, a number, a topic, and a difficulty range, so the request is specific.",
+      },
+      {
+        id: "t4",
+        text: "Write my lab report for me.",
+        pts: 1,
+        note: "This asks the AI to do the assignment for you. It also raises an academic integrity concern, so it earns very little credit.",
+      },
     ],
   },
   {
     id: "context",
     name: "Context",
-    q: "What it needs to know",
+    q: "What does the AI need to know about your situation?",
     color: "#C6F32E",
     chips: [
-      { id: "c0", text: "— skip context —", pts: 0, note: "The model will now guess what your situation is." },
-      { id: "c1", text: "It's for school.", pts: 4, note: "Bare minimum. Which year? What's your actual sticking point?" },
-      { id: "c2", text: "I read chapter 7 twice and it still didn't stick.", pts: 7, note: "Useful signal — the model knows reading didn't work." },
-      { id: "c3", text: "My bio test is Friday and I keep mixing up glycolysis with the Krebs cycle.", pts: 16, note: "Deadline + specific weak spot = targeted practice instead of generic review." },
+      {
+        id: "c0",
+        text: "— skip context —",
+        pts: 0,
+        note: "Without context, the AI has to guess about your situation and what you already know.",
+      },
+      {
+        id: "c1",
+        text: "It's for school.",
+        pts: 4,
+        note: "This is a start, but it does not explain the grade level, the deadline, or where you are getting stuck.",
+      },
+      {
+        id: "c2",
+        text: "I read chapter 7 twice and it still didn't stick.",
+        pts: 7,
+        note: "This tells the AI that rereading did not help, which points toward a different study approach.",
+      },
+      {
+        id: "c3",
+        text: "My bio test is Friday, and I keep mixing up glycolysis with the Krebs cycle.",
+        pts: 16,
+        note: "A deadline and a specific confusion give the AI a clear focus for your practice.",
+      },
     ],
   },
   {
     id: "format",
     name: "Format",
-    q: "Shape of the answer",
+    q: "How should the answer be organized?",
     color: "#FFD645",
     chips: [
-      { id: "f0", text: "— skip format —", pts: 0, note: "Untold, the model will freestyle an essay." },
-      { id: "f1", text: "Make it look nice.", pts: 2, note: "'Nice' means nothing to a token predictor." },
-      { id: "f2", text: "Use exactly 3 paragraphs.", pts: 8, note: "Structure helps — just check it doesn't fight your task." },
-      { id: "f3", text: "Ask one question at a time. Don't reveal answers until I respond.", pts: 15, note: "You just programmed the conversation's behavior. Power move." },
+      {
+        id: "f0",
+        text: "— skip format —",
+        pts: 0,
+        note: "Without a format, the AI will choose one, often a long written explanation.",
+      },
+      {
+        id: "f1",
+        text: "Make it look nice.",
+        pts: 2,
+        note: "'Nice' is too vague to guide the response. Describe the structure instead.",
+      },
+      {
+        id: "f2",
+        text: "Use exactly 3 paragraphs.",
+        pts: 8,
+        note: "A clear structure helps. Make sure it does not conflict with the task, such as a quiz that needs a list.",
+      },
+      {
+        id: "f3",
+        text: "Ask one question at a time. Don't reveal answers until I respond.",
+        pts: 15,
+        note: "This describes how the back-and-forth should work, so the AI knows how to run the practice session.",
+      },
     ],
   },
   {
     id: "constraint",
     name: "Constraints",
-    q: "The guardrails",
+    q: "What limits should the AI follow?",
     color: "#FF8BD1",
     chips: [
-      { id: "k0", text: "— skip constraints —", pts: 0, note: "Free-range output. Some chaos expected." },
-      { id: "k1", text: "Be smart.", pts: 1, note: "That's the model's default aspiration, not a constraint." },
-      { id: "k2", text: "Keep it under 100 words.", pts: 6, note: "Length caps are easy wins — though they can clash with quizzing." },
-      { id: "k3", text: "No jargon without defining it. If I miss twice, re-explain with an analogy.", pts: 17, note: "Two behavioral rules the model can actually enforce on itself." },
+      {
+        id: "k0",
+        text: "— skip constraints —",
+        pts: 0,
+        note: "Without limits, the response may be longer or less focused than you need.",
+      },
+      {
+        id: "k1",
+        text: "Be smart.",
+        pts: 1,
+        note: "This describes a quality the AI already aims for. It is not a specific limit.",
+      },
+      {
+        id: "k2",
+        text: "Keep it under 100 words.",
+        pts: 6,
+        note: "A length limit is useful, though it may conflict with a detailed quiz or explanation.",
+      },
+      {
+        id: "k3",
+        text: "No jargon without defining it. If I miss twice, re-explain with an analogy.",
+        pts: 17,
+        note: "These are two clear rules the AI can follow during the conversation.",
+      },
     ],
   },
 ];
 
 function verdict(score: number): { label: string; text: string; color: string } {
-  if (score >= 90) return { label: "FORGED", color: "#C6F32E", text: "Certified promptsmith. This spec leaves the model almost nothing to guess." };
-  if (score >= 70) return { label: "STRONG", color: "#43D9FF", text: "Pro territory. A couple of open gaps, but the output will be sharp." };
-  if (score >= 45) return { label: "VAGUE", color: "#FFD645", text: "Better than most — but the model is still filling important blanks." };
-  if (score >= 20) return { label: "MUSH", color: "#FF6B4A", text: "You're asking the machine to read your mind. It can't." };
-  return { label: "STATIC", color: "#171321", text: "Almost no signal. Feed the machine something to work with." };
+  if (score >= 90)
+    return {
+      label: "FORGED",
+      color: "#C6F32E",
+      text: "Excellent. This prompt leaves the AI very little to guess.",
+    };
+  if (score >= 70)
+    return {
+      label: "STRONG",
+      color: "#43D9FF",
+      text: "A solid prompt. A few small gaps remain that you could close.",
+    };
+  if (score >= 45)
+    return {
+      label: "VAGUE",
+      color: "#FFD645",
+      text: "A reasonable start, but the AI still has to fill in several important details.",
+    };
+  if (score >= 20)
+    return {
+      label: "MUSH",
+      color: "#FF6B4A",
+      text: "The AI would have to guess most of what you want.",
+    };
+  return {
+    label: "STATIC",
+    color: "#171321",
+    text: "There is very little information here. Add details so the AI has something to work with.",
+  };
 }
 
 export default function PromptBuilder() {
@@ -88,7 +220,7 @@ export default function PromptBuilder() {
   const pinged = useRef(false);
 
   const score = useMemo(() => {
-    let s = 8;
+    let s = BASE_SCORE;
     for (const slot of SLOTS) {
       const chip = slot.chips.find((c) => c.id === picked[slot.id]);
       if (chip) s += chip.pts;
@@ -102,11 +234,11 @@ export default function PromptBuilder() {
       const chip = slot.chips.find((c) => c.id === picked[slot.id]);
       if (chip && chip.pts > 0) parts.push(chip.text);
     }
-    return parts.length ? parts.join(" ") : "// your prompt will assemble here…";
+    return parts.length ? parts.join(" ") : "Your prompt will appear here as you make choices.";
   }, [picked]);
 
   const v = verdict(score);
-  const slotsFilled = Object.values(picked).filter(Boolean).length;
+  const choicesMade = Object.values(picked).filter(Boolean).length;
 
   const doForge = () => {
     setForged(true);
@@ -120,10 +252,10 @@ export default function PromptBuilder() {
     <div className="overflow-hidden rounded-2xl border-2 border-ink bg-white">
       <div className="border-b-2 border-ink bg-paper px-4 py-3">
         <p className="font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-ink/60">
-          Mission: get AI to help you study cellular respiration for Friday&apos;s bio test
+          Mission: Use AI to study cellular respiration for Friday&apos;s biology test
         </p>
         <p className="mt-0.5 text-xs text-ink/50">
-          Pick ONE chip per ingredient. Some choices look fine but are secretly mush — read the feedback, chase 90+ signal.
+          Choose one option for each element. Some options look reasonable but are still vague. Read the feedback, then try to reach a score of 90 or higher.
         </p>
       </div>
 
@@ -134,7 +266,8 @@ export default function PromptBuilder() {
             <fieldset key={slot.id}>
               <legend className="mb-2 flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-ink">
                 <span className="size-2.5 rounded-full border border-ink" style={{ backgroundColor: slot.color }} />
-                {slot.name} <span className="font-normal normal-case tracking-normal text-ink/50">— {slot.q}</span>
+                {slot.name}{" "}
+                <span className="font-normal normal-case tracking-normal text-ink/50">— {slot.q}</span>
               </legend>
               <div className="flex flex-col gap-1.5">
                 {slot.chips.map((chip) => {
@@ -157,7 +290,9 @@ export default function PromptBuilder() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           className="mt-1 block border-t border-ink/15 pt-1 font-mono text-[10px] uppercase tracking-wide"
-                          style={{ color: chip.pts >= 12 ? "#2E7D0F" : chip.pts >= 6 ? "#B45309" : "#B42318" }}
+                          style={{
+                            color: chip.pts >= 12 ? "#2E7D0F" : chip.pts >= 6 ? "#B45309" : "#B42318",
+                          }}
                         >
                           {chip.pts >= 12 ? "+ strong" : chip.pts >= 6 ? "± partial" : "− weak"} · {chip.note}
                         </motion.span>
@@ -173,7 +308,7 @@ export default function PromptBuilder() {
         {/* forge panel */}
         <div className="flex flex-col border-t-2 border-ink bg-ink text-paper lg:border-l-2 lg:border-t-0">
           <div className="border-b border-paper/15 px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-paper/50">
-            live prompt preview
+            Live prompt preview
           </div>
           <div className="flex-1 px-4 py-4">
             <p className="min-h-24 font-mono text-[13px] leading-relaxed text-lime/90">{prompt}</p>
@@ -187,7 +322,7 @@ export default function PromptBuilder() {
                 </p>
               </div>
               <div className="text-right font-mono text-[10px] uppercase tracking-wider text-paper/45">
-                {slotsFilled}/5 ingredients
+                {choicesMade}/5 choices made
               </div>
             </div>
             <div className="mt-3 h-3.5 rounded-full border border-paper/30 bg-paper/10">
@@ -209,10 +344,10 @@ export default function PromptBuilder() {
             <div className="mt-4 flex flex-wrap gap-2">
               <button
                 onClick={doForge}
-                disabled={slotsFilled < 5}
+                disabled={choicesMade < 5}
                 className="btn btn-primary !border-paper !shadow-[3px_3px_0_rgba(255,246,233,0.35)] disabled:opacity-40"
               >
-                <Hammer className="size-4" /> Forge it
+                <Hammer className="size-4" /> Check my prompt
               </button>
               <button
                 onClick={() => {
@@ -223,12 +358,12 @@ export default function PromptBuilder() {
                 className="btn !border-paper bg-transparent text-paper !shadow-[3px_3px_0_rgba(255,246,233,0.35)]"
               >
                 {copied ? <Check className="size-4" /> : <ClipboardCopy className="size-4" />}
-                {copied ? "Copied" : "Copy"}
+                {copied ? "Copied" : "Copy prompt"}
               </button>
             </div>
             {forged && score >= 90 && (
               <p className="mt-3 font-mono text-[11px] font-bold uppercase tracking-wider text-lime">
-                ★ Promptsmith badge transmitted to your build
+                ★ Promptsmith badge earned
               </p>
             )}
           </div>
