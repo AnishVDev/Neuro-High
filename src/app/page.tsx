@@ -45,9 +45,9 @@ export default function HomePage() {
               <span className="chip bg-white text-ink/70">no account · no cost · no homework energy</span>
             </div>
             <h1 className="mt-5 font-display text-[clamp(2.9rem,7.5vw,5.6rem)] font-extrabold leading-[0.95] tracking-tight text-ink">
-              AI isn&apos;t magic.
+              AI isn't magic.
               <br />
-              <span className="text-outline">It&apos;s math —</span>
+              <span className="text-outline">It's math</span>
               <br />
               <span className="relative inline-block">
                 <span className="relative z-10">you can learn.</span>
