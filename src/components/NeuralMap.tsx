@@ -172,69 +172,6 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
               whole layer. Pick up where you left off—or explore any lesson.
             </p>
           </div>
-
-          <div className="grid content-start gap-3">
-            {/* XP / rank panel */}
-            <div className="sticker bg-ink p-4 text-paper">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-paper/55">
-                    Experience points
-                  </p>
-                  <p className="mt-1 font-display text-3xl font-extrabold leading-none text-sun">
-                    {loading ? "—" : xp.toLocaleString()} XP
-                  </p>
-                </div>
-                <span className="grid size-11 place-items-center rounded-xl border-2 border-ink bg-sun text-ink">
-                  <Zap className="size-5" strokeWidth={2.6} aria-hidden="true" />
-                </span>
-              </div>
-
-              <div
-                className="mt-4 h-3 overflow-hidden rounded-full border-2 border-paper/40 bg-paper/10 p-[1px]"
-                role="progressbar"
-                aria-label="Progress to next rank"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={loading ? undefined : rankProgress}
-              >
-                <div
-                  className="h-full rounded-full bg-lime transition-[width] duration-700 motion-reduce:transition-none"
-                  style={{ width: `${loading ? 0 : rankProgress}%` }}
-                />
-              </div>
-
-              <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[10px] font-bold uppercase tracking-wider">
-                <span className="text-paper">{loading ? "Syncing…" : rank.name}</span>
-                <span className="text-paper/50">
-                  {loading
-                    ? ""
-                    : upcomingRank
-                      ? `${Math.max(0, upcomingRank.minXp - xp)} XP to ${upcomingRank.name}`
-                      : "Top rank"}
-                </span>
-              </div>
-            </div>
-
-            {/* Small NOVA briefing */}
-            {!compact && (
-              <div className="flex items-center gap-3 rounded-xl border-2 border-ink bg-white p-3 shadow-[3px_3px_0_#171321]">
-                <Image
-                  src="/img/nova-bot.png"
-                  alt="NOVA, your AI copilot"
-                  width={56}
-                  height={56}
-                  className="size-14 shrink-0 rounded-lg border-2 border-ink bg-cream object-cover"
-                />
-                <div className="min-w-0">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-coral">
-                    NOVA // field note
-                  </p>
-                  <p className="mt-1 text-xs leading-snug text-ink/75">{novaHint}</p>
-                </div>
-              </div>
-            )}
-          </div>
         </header>
 
         {/* Stats */}
