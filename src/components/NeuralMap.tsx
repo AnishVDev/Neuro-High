@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useMemo, useState, type CSSProperties } from "react";
 import { MotionConfig, motion } from "framer-motion";
-import { ArrowRight, Flame, Skull, Sparkles, Zap } from "lucide-react";
+import { ArrowRight, Skull, Sparkles, Zap } from "lucide-react";
 import { MODULES, lessonPath, lessonsOf } from "@/content";
 import { nextRank, rankFor } from "@/lib/gamification";
 import { useProgress } from "./ProgressProvider";
@@ -52,7 +52,6 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
   const [focusedSlug, setFocusedSlug] = useState<string | null>(null);
 
   const xp = state?.learner.xp ?? 0;
-  const streak = state?.learner.streak ?? 1;
   const rank = rankFor(xp);
   const upcomingRank = nextRank(xp);
 
@@ -82,8 +81,6 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
 
   const total = allNodes.length;
   const cleared = allNodes.filter((node) => node.done).length;
-  const integrity = total ? Math.round((cleared / total) * 100) : 0;
-  const energizedLayers = layers.filter((layer) => layer.complete).length;
   const progressReady = !loading && state !== null;
 
   const nextNode = progressReady
@@ -174,9 +171,10 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           </div>
 
           <div className="grid content-start gap-3">
-
+            {/* Rank card */}
+            <div className="rounded-xl border-2 border-ink bg-ink p-4 text-paper shadow-[3px_3px_0_#171321]">
               <div
-                className="mt-4 h-3 overflow-hidden rounded-full border-2 border-paper/40 bg-paper/10 p-[1px]"
+                className="h-3 overflow-hidden rounded-full border-2 border-paper/40 bg-paper/10 p-[1px]"
                 role="progressbar"
                 aria-label="Progress to next rank"
                 aria-valuemin={0}
@@ -552,7 +550,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
           </div>
         )}
 
-        <style jsx>{CSS}</style>
+        <style>{CSS}</style>
       </section>
     </MotionConfig>
   );
