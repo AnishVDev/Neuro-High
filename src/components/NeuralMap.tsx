@@ -1,442 +1,481 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "framer-motion";
-import { ArrowRight, Check, Flame, Skull, Zap } from "lucide-react";
+import { Fragment, useMemo, useState, type CSSProperties } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, Skull, Sparkles, Zap } from "lucide-react";
 import { MODULES, lessonPath, lessonsOf } from "@/content";
 import { nextRank, rankFor } from "@/lib/gamification";
 import { useProgress } from "./ProgressProvider";
 
-const VIEW_W = 1000;
-const NODE_TOP = 128;
-const NODE_GAP = 88;
-const NODE_R = 20;
-const BOSS_R = 26;
+/**
+ * NEURO//HIGH neural build.
+ * Each module is a layer (sticker card), each mission is a neuron (row).
+ * Wires between cards light up as you clear missions.
+ */
 
-const truncate = (s: string, n = 18) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+const INK = "#171321";
+const LIME = "#C6F32E";
+const SUN = "#FFD645";
+
+// Geometry. Rows have fixed heights so the wires line up with the ports.
+const BORDER = 2; // card border width (border-2)
+const HEADER_H = 128; // layer card header height on desktop
+const PAD = 10; // vertical padding of the lesson list
+const ROW_H = 76; // height of one lesson row
+const GAP_W = 64; // width of the wire channel between cards
+
+const rowCenter = (i: number) => BORDER + HEADER_H + PAD + i * ROW_H + ROW_H / 2;
+
+/** Checkmark drawn so its visual center is exactly (12, 12). */
+function CheckMark({ size = 22 }: { size?: number }) {
+  const d = "M5 12.25 9.8 16.75 19 7.25";
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden className="block">
+      <path d={d} fill="none" stroke={INK} strokeWidth={6.5} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke="#FFFFFF" strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 export default function NeuralMap({ compact = false }: { compact?: boolean }) {
-  const router = useRouter();
   const { state, isCompleted, loading } = useProgress();
-
-  const [activeSlug, setActiveSlug] = useState<string | null>(null);
-  const [focusedSlug, setFocusedSlug] = useState<string | null>(null);
+  const [hot, setHot] = useState<string | null>(null);
 
   const xp = state?.learner.xp ?? 0;
-  const streak = state?.learner.streak ?? 1;
   const rank = rankFor(xp);
   const upcoming = nextRank(xp);
 
-  const layers = useMemo(() => {
-    const xs = MODULES.map(
-      (_, i) => 170 + i * ((VIEW_W - 340) / Math.max(1, MODULES.length - 1)),
-    );
-    return MODULES.map((mod, i) => {
-      const list = lessonsOf(mod.slug);
-      return {
-        mod,
-        x: xs[i],
-        nodes: list.map((lesson, j) => ({
+  const layers = useMemo(
+    () =>
+      MODULES.map((mod) => {
+        const nodes = lessonsOf(mod.slug).map((lesson) => ({
           lesson,
           done: isCompleted(lesson.slug),
-          y: NODE_TOP + j * NODE_GAP,
-        })),
-      };
-    });
-  }, [isCompleted]);
-
-  const nodes = layers.flatMap((l) =>
-    l.nodes.map((n) => ({ ...n, x: l.x, mod: l.mod })),
+        }));
+        const count = nodes.filter((n) => n.done).length;
+        return { mod, nodes, count, full: nodes.length > 0 && count === nodes.length };
+      }),
+    [isCompleted],
   );
 
-  const total = nodes.length;
-  const cleared = nodes.filter((n) => n.done).length;
-  const integrity = total > 0 ? Math.round((cleared / total) * 100) : 0;
-  const nextNode = nodes.find((n) => !n.done);
-  const preview =
-    nodes.find((n) => n.lesson.slug === (focusedSlug ?? activeSlug)) ?? nextNode;
+  const all = layers.flatMap((l) => l.nodes);
+  const total = all.length;
+  const cleared = all.filter((n) => n.done).length;
+  const integrity = total ? Math.round((cleared / total) * 100) : 0;
+  const layersFull = layers.filter((l) => l.full).length;
+
+  const nextNode = loading ? undefined : all.find((n) => !n.done);
+  const nextLayer = nextNode ? layers.find((l) => l.nodes.includes(nextNode)) : undefined;
 
   const maxRows = Math.max(1, ...layers.map((l) => l.nodes.length));
-  const viewH = NODE_TOP + (maxRows - 1) * NODE_GAP + 116;
+  const boardH = BORDER * 2 + HEADER_H + PAD * 2 + maxRows * ROW_H;
+  const gridCols = layers.map(() => "minmax(0,1fr)").join(` ${GAP_W}px `);
 
-  // Animated integrity counter
-  const mv = useMotionValue(0);
-  const spring = useSpring(useTransform(mv, (v) => `${Math.round(v)}`), {
-    stiffness: 90,
-    damping: 18,
-  });
-  useEffect(() => {
-    const controls = animate(mv, integrity, { duration: 0.9, ease: [0.22, 1, 0.36, 1] });
-    return () => controls.stop();
-  }, [integrity, mv]);
+  // NOVA's contextual hint
+  let hint = "syncing your build…";
+  if (!loading) {
+    if (cleared === 0) hint = "psst — every network starts dark. clear mission one and watch it spark.";
+    else if (!nextNode) hint = "every neuron lit. you're officially a full stack human.";
+    else if (nextNode.lesson.kind === "boss")
+      hint = "boss fight next. land 5 in a row for the Overclocked badge.";
+    else if (nextLayer) {
+      const left = nextLayer.nodes.length - nextLayer.count;
+      hint = `${left} more mission${left === 1 ? "" : "s"} to energize ${nextLayer.mod.title}.`;
+    }
+  }
 
-  const complete = !loading && total > 0 && cleared === total;
+  const tape = [
+    "Input: you, day one",
+    `${layers.length} layers`,
+    `${total} neurons`,
+    "Clear missions",
+    "Beat the bosses",
+    "Output: full stack human",
+  ];
 
   return (
     <section
-      className="sticker-lg overflow-hidden bg-paper text-ink"
-      aria-label="Your AI learning network"
+      className="sticker-lg relative overflow-hidden bg-paper text-ink"
+      aria-label="Your neural build"
       aria-busy={loading}
     >
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="border-b-2 border-ink bg-white p-5 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-vio">
-              Your neural build
-            </p>
-            <h2 className="mt-1.5 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Network integrity:{" "}
-              <span className="relative inline-block px-1">
-                <span className="absolute inset-0 -rotate-1 rounded-sm bg-lime" aria-hidden />
-                <span className="relative">
-                  <motion.span>{spring}</motion.span>%
-                </span>
-              </span>
-            </h2>
-            <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink/50">
-              {loading
-                ? "syncing your build…"
-                : upcoming
-                  ? `${Math.max(0, upcoming.minXp - xp).toLocaleString()} XP to rank ${upcoming.name}`
-                  : "top rank reached"}
-            </p>
-          </div>
+      {/* ── Hero ─────────────────────────────────────────────── */}
+      <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="min-w-0">
+          <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-coral">
+            Your neural build
+          </p>
+          <h2 className="mt-2 font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl">
+            Wire up your <span className="nm-outline">brain.</span>
+          </h2>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="chip bg-sun text-ink">
-              <Zap className="size-3.5" strokeWidth={2.6} />
-              {loading ? "—" : xp.toLocaleString()} XP
-            </span>
-            <span className="chip bg-white text-ink/70">{rank.name}</span>
-            {streak > 1 && (
+          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            <div>
+              <dd className="font-display text-3xl font-extrabold leading-none">
+                <span className="relative z-0 inline-block">
+                  <span aria-hidden className="absolute -inset-x-1 bottom-0.5 -z-10 h-[42%] -rotate-1 bg-lime" />
+                  {loading ? "—" : `${integrity}%`}
+                </span>
+              </dd>
+              <dt className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-ink/55">network integrity</dt>
+            </div>
+            <div>
+              <dd className="font-display text-3xl font-extrabold leading-none">
+                {loading ? "—" : cleared}
+                <span className="text-ink/30">/{total}</span>
+              </dd>
+              <dt className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-ink/55">neurons lit</dt>
+            </div>
+            <div>
+              <dd className="font-display text-3xl font-extrabold leading-none">
+                {loading ? "—" : layersFull}
+                <span className="text-ink/30">/{layers.length}</span>
+              </dd>
+              <dt className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-ink/55">layers energized</dt>
+            </div>
+            <div>
+              <dd className="font-display text-3xl font-extrabold leading-none">
+                {loading ? "—" : xp.toLocaleString()}
+              </dd>
+              <dt className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-ink/55">
+                {loading ? "xp" : upcoming ? `xp · ${upcoming.minXp - xp} to ${upcoming.name}` : `xp · ${rank.name}`}
+              </dt>
+            </div>
+          </dl>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {nextNode ? (
+              <Link href={lessonPath(nextNode.lesson)} className="btn btn-primary">
+                {cleared > 0 ? "Continue your build" : "Start your build"}
+                <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            ) : !loading && total > 0 ? (
+              <span className="chip bg-lime text-ink">
+                <Zap className="size-3.5" aria-hidden /> Network complete
+              </span>
+            ) : null}
+            {!loading && (
               <span className="chip bg-white text-ink/70">
-                <Flame className="size-3.5 text-coral" strokeWidth={2.6} />
-                {streak}-day streak
+                <Sparkles className="size-3.5" aria-hidden /> Rank · {rank.name}
               </span>
             )}
           </div>
         </div>
 
-        {/* overall bar */}
-        <div className="mt-4 flex items-center gap-3">
-          <div
-            className="h-3.5 flex-1 overflow-hidden rounded-full border-2 border-ink bg-white"
-            role="progressbar"
-            aria-label="Lessons completed"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={loading ? undefined : integrity}
-            aria-valuetext={loading ? "Loading" : `${cleared} of ${total} lessons`}
-          >
-            <div
-              className="nn-fill h-full rounded-full transition-[width] duration-700 motion-reduce:transition-none"
-              style={{ width: `${loading ? 0 : integrity}%` }}
+        {/* NOVA */}
+        {!compact && (
+          <div className="flex items-end gap-3 lg:flex-col lg:items-center">
+            <div className="relative max-w-[230px] -rotate-2 rounded-2xl border-2 border-ink bg-white px-4 py-3 font-mono text-[12px] leading-snug text-ink shadow-[4px_4px_0_#171321]">
+              {hint}
+              <span
+                aria-hidden
+                className="absolute -bottom-[9px] left-8 size-4 rotate-45 border-b-2 border-r-2 border-ink bg-white lg:left-1/2"
+              />
+            </div>
+            <Image
+              src="/img/nova-bot.png"
+              alt="NOVA, your AI copilot"
+              width={104}
+              height={104}
+              className="nm-bob size-[104px] shrink-0 rounded-2xl border-2 border-ink bg-white object-cover shadow-[4px_4px_0_#171321]"
             />
           </div>
-          <span className="font-mono text-xs font-bold text-ink/60">
-            {loading ? "—" : `${cleared}/${total}`}
-          </span>
-        </div>
-
-        {/* legend */}
-        <div className="mt-3 flex flex-wrap gap-4 font-mono text-[10px] uppercase tracking-wider text-ink/55">
-          <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-full border-2 border-ink bg-white" /> dormant
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-full border-2 border-ink bg-lime" /> firing
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="size-3 rounded-full border-2 border-ink bg-white ring-2 ring-sun" /> up next
-          </span>
-        </div>
+        )}
       </div>
 
-      {/* 100% banner */}
-      {complete && (
-        <div className="border-b-2 border-ink bg-lime px-5 py-2 text-center font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-ink">
-          ⚡ network complete — you are the full stack human ⚡
-        </div>
-      )}
-
-      {/* ── Map ────────────────────────────────────────────── */}
-      <div className="overflow-x-auto">
-        <svg
-          viewBox={`0 0 ${VIEW_W} ${viewH}`}
-          className="min-w-[760px] w-full"
-          role="img"
-          aria-label={`Neural network progress map, ${integrity}% complete`}
-        >
-          <defs>
-            <pattern id="nn-dots" width="22" height="22" patternUnits="userSpaceOnUse">
-              <circle cx="1.2" cy="1.2" r="1.2" fill="#171321" opacity="0.08" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#nn-dots)" />
-
-          {/* edges */}
-          {layers.slice(0, -1).flatMap((layer, li) =>
-            layer.nodes.flatMap((a) =>
-              layers[li + 1].nodes.map((b) => {
-                const both = a.done && b.done;
-                const started = a.done || b.done;
-                const hot = activeSlug === a.lesson.slug || activeSlug === b.lesson.slug;
-                const key = `${a.lesson.slug}-${b.lesson.slug}`;
-                const x2 = layers[li + 1].x;
-
-                if (both) {
-                  return (
-                    <g key={key}>
-                      <line x1={layer.x} y1={a.y} x2={x2} y2={b.y} stroke="#171321" strokeWidth={hot ? 3 : 2.25} opacity={hot ? 1 : 0.85} />
-                      <line
-                        x1={layer.x} y1={a.y} x2={x2} y2={b.y}
-                        stroke="#A9D418" strokeWidth={hot ? 3 : 2.25}
-                        strokeDasharray="10 12" strokeLinecap="round"
-                        className="nn-flow"
-                      />
-                    </g>
-                  );
-                }
-                return (
-                  <line
-                    key={key}
-                    x1={layer.x} y1={a.y} x2={x2} y2={b.y}
-                    stroke={started ? (a.done ? layer.mod.color : layers[li + 1].mod.color) : "#171321"}
-                    strokeWidth={hot ? 2.5 : 1.6}
-                    opacity={hot ? 0.9 : started ? 0.45 : 0.1}
-                  />
-                );
-              }),
-            ),
-          )}
-
-          {/* column headers */}
-          {layers.map((layer) => {
-            const doneCount = layer.nodes.filter((n) => n.done).length;
-            const pct = layer.nodes.length ? Math.round((doneCount / layer.nodes.length) * 100) : 0;
-            const online = layer.nodes.length > 0 && doneCount === layer.nodes.length;
-            return (
-              <g key={layer.mod.slug} transform={`translate(${layer.x} 0)`}>
-                <text y={42} textAnchor="middle" fontFamily="var(--f-mono), monospace" fontSize={11} fontWeight={700} letterSpacing={2.5} fill={layer.mod.color}>
-                  {layer.mod.codename}
-                </text>
-                <text y={63} textAnchor="middle" fontFamily="var(--f-display), sans-serif" fontSize={16} fontWeight={800} fill="#171321">
-                  {layer.mod.title}
-                </text>
-                {online ? (
-                  <>
-                    <rect x={-60} y={74} width={120} height={21} rx={10.5} fill="#C6F32E" stroke="#171321" strokeWidth={1.5} />
-                    <text y={88} textAnchor="middle" fontFamily="var(--f-mono), monospace" fontSize={9} fontWeight={700} letterSpacing={1.5} fill="#171321">
-                      LAYER ONLINE
-                    </text>
-                  </>
-                ) : (
-                  <text y={89} textAnchor="middle" fontFamily="var(--f-mono), monospace" fontSize={10} fontWeight={700} fill="#171321" opacity={0.45}>
-                    {doneCount}/{layer.nodes.length} · {pct}%
-                  </text>
-                )}
-              </g>
-            );
-          })}
-
-          {/* nodes — outer <g> positions, inner <g> handles hover zoom so CSS transform never overrides the translate */}
-          {layers.flatMap((layer) =>
-            layer.nodes.map((n) => {
-              const isNext = !loading && !n.done && n.lesson.slug === nextNode?.lesson.slug;
-              const isActive = activeSlug === n.lesson.slug || focusedSlug === n.lesson.slug;
-              const r = n.lesson.kind === "boss" ? BOSS_R : NODE_R;
-              const go = () => router.push(lessonPath(n.lesson));
-              return (
-                <g key={n.lesson.slug} transform={`translate(${layer.x} ${n.y})`}>
-                  <g
-                    className="nn-zoom"
-                    role="link"
-                    tabIndex={0}
-                    aria-label={`${n.lesson.title} — ${n.done ? "completed" : `${n.lesson.xp} XP`}`}
-                    onClick={go}
-                    onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && go()}
-                    onMouseEnter={() => setActiveSlug(n.lesson.slug)}
-                    onMouseLeave={() => setActiveSlug(null)}
-                    onFocus={() => setFocusedSlug(n.lesson.slug)}
-                    onBlur={() => setFocusedSlug(null)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {isNext && (
-                      <circle r={r + 11} fill="rgba(255,214,69,0.18)" stroke="#FFD645" strokeWidth={3} strokeDasharray="7 7" className="nn-spin" />
-                    )}
-                    {focusedSlug === n.lesson.slug && (
-                      <circle r={r + 6} fill="none" stroke="#7B5CFF" strokeWidth={2.5} strokeDasharray="4 4" />
-                    )}
-                    <circle
-                      r={r}
-                      fill={n.done ? layer.mod.color : "#FFFFFF"}
-                      stroke="#171321"
-                      strokeWidth={2.5}
-                      className="nn-node-body"
-                    />
-                    {n.done ? (
-                      // perfectly centered by construction: path drawn around (0,0)
-                      <path d="M -7.5 0 L -2.5 5.5 L 8 -6.5" fill="none" stroke="#FFFFFF" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" />
-                    ) : n.lesson.kind === "boss" ? (
-                      <foreignObject x={-r * 0.62} y={-r * 0.62} width={r * 1.24} height={r * 1.24}>
-                        <div className="flex h-full w-full items-center justify-center">
-                          <Skull size={r * 0.85} className="text-ink/45" strokeWidth={2} />
-                        </div>
-                      </foreignObject>
-                    ) : (
-                      <text y={1} textAnchor="middle" dominantBaseline="central" fontFamily="var(--f-mono), monospace" fontSize={12} fontWeight={700} fill="#171321" opacity={0.55}>
-                        {n.lesson.index + 1}
-                      </text>
-                    )}
-                    <text
-                      y={r + 17}
-                      textAnchor="middle"
-                      fontFamily="var(--f-mono), monospace"
-                      fontSize={10}
-                      fontWeight={700}
-                      fill={n.done ? "#171321" : "#171321"}
-                      opacity={n.done ? 0.85 : isNext ? 1 : 0.4}
-                    >
-                      {truncate(n.lesson.title)}
-                    </text>
-                    {isNext && (
-                      <text y={-r - 14} textAnchor="middle" fontFamily="var(--f-mono), monospace" fontSize={9} fontWeight={700} letterSpacing={1.5} fill="#B8860B">
-                        NEXT
-                      </text>
-                    )}
-                  </g>
-                </g>
-              );
-            }),
-          )}
-
-          {/* io caps */}
-          <text x={30} y={viewH / 2} fontFamily="var(--f-mono), monospace" fontSize={10} fill="#171321" opacity={0.35} textAnchor="middle" transform={`rotate(-90 34 ${viewH / 2})`}>
-            INPUT: YOU, DAY ONE
-          </text>
-          <text x={VIEW_W - 30} y={viewH / 2} fontFamily="var(--f-mono), monospace" fontSize={10} fill="#171321" opacity={0.35} textAnchor="middle" transform={`rotate(90 ${VIEW_W - 34} ${viewH / 2})`}>
-            OUTPUT: FULL STACK HUMAN
-          </text>
-        </svg>
-      </div>
-
-      {/* ── Preview / CTA ──────────────────────────────────── */}
-      {!compact && preview && (
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t-2 border-ink bg-white p-4 sm:px-6">
-          <div className="min-w-0">
-            <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-vio">
-              {activeSlug || focusedSlug ? "lesson preview" : cleared > 0 ? "next connection" : "your first neuron"}
-            </p>
-            <p className="mt-1 truncate font-display text-xl font-extrabold text-ink">
-              {preview.lesson.title}
-            </p>
-            <p className="mt-1 font-mono text-[11px] uppercase tracking-wider text-ink/50">
-              {preview.mod.codename} — {preview.mod.title}
-              {" · "}
-              {preview.done ? "cleared · replay = 0 XP" : `${preview.lesson.xp} XP + combo bonus`}
-              {isNextLabel(preview, nextNode) ? " · recommended" : ""}
-            </p>
-          </div>
-          <Link href={lessonPath(preview.lesson)} className="btn btn-primary shrink-0">
-            {preview.done ? "Review" : cleared > 0 ? "Continue" : "Start"} <ArrowRight className="size-4" />
-          </Link>
-        </div>
-      )}
-
-      {/* ── Accessible link strip ──────────────────────────── */}
-      {!compact && (
-        <div className="grid gap-4 border-t-2 border-ink bg-paper p-4 sm:grid-cols-3 sm:px-6">
-          {layers.map((layer) => (
-            <div key={layer.mod.slug}>
-              <p className="mb-2 font-mono text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: layer.mod.color }}>
-                {layer.mod.codename} · {layer.mod.title}
-              </p>
-              <ul className="space-y-1">
-                {layer.nodes.map((n) => (
-                  <li key={n.lesson.slug}>
-                    <Link
-                      href={lessonPath(n.lesson)}
-                      className="group flex items-center gap-2 text-xs font-medium text-ink/70 transition-colors hover:text-ink"
-                    >
-                      <span
-                        className="size-2.5 shrink-0 rounded-full border border-ink"
-                        style={{ backgroundColor: n.done ? layer.mod.color : "#fff" }}
-                      />
-                      <span className="transition-transform group-hover:translate-x-0.5">{n.lesson.title}</span>
-                      {n.done && <Check className="size-3.5 text-[#2E7D0F]" strokeWidth={3} />}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+      {/* ── Marquee tape ─────────────────────────────────────── */}
+      <div className="relative z-20 -ml-[5%] w-[110%] -rotate-1 overflow-hidden border-y-2 border-ink bg-sun py-2" aria-hidden>
+        <div className="nm-marquee flex w-max gap-8 whitespace-nowrap font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-ink">
+          {[...tape, ...tape, ...tape, ...tape].map((t, i) => (
+            <span key={i} className="flex items-center gap-8">
+              {t} <span className="text-ink/50">✦</span>
+            </span>
           ))}
         </div>
-      )}
+      </div>
 
-      <p className="border-t border-ink/10 px-5 py-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-ink/40 sm:px-6">
-        every lesson you clear lights a neuron — progress saves in this browser
-      </p>
+      {/* ── The network ──────────────────────────────────────── */}
+      <div className="nm-board -mt-3 bg-cream px-4 pb-6 pt-9 sm:px-6">
+        <div className="nm-grid" style={{ "--cols": gridCols } as CSSProperties}>
+          {layers.map((layer, li) => {
+            const tint = `color-mix(in srgb, ${layer.mod.color} 18%, #ffffff)`;
+            const isLast = li === layers.length - 1;
+            const nextLayerData = layers[li + 1];
 
-      <style jsx>{`
-        .nn-fill {
-          background-color: #c6f32e;
-          background-image: repeating-linear-gradient(
-            -45deg,
-            rgba(23, 19, 33, 0.16) 0 8px,
-            transparent 8px 16px
-          );
-          animation: nnstripes 0.9s linear infinite;
-        }
-        @keyframes nnstripes {
-          to { background-position: 22.6px 0; }
-        }
-        .nn-flow { animation: nnflow 1s linear infinite; }
-        @keyframes nnflow {
-          to { stroke-dashoffset: -22; }
-        }
-        .nn-spin {
-          transform-box: fill-box;
-          transform-origin: center;
-          animation: nnspin 7s linear infinite;
-        }
-        @keyframes nnspin {
-          to { transform: rotate(360deg); }
-        }
-        .nn-zoom {
-          transform-box: fill-box;
-          transform-origin: center;
-          transition: transform 0.15s ease;
-          outline: none;
-        }
-        .nn-zoom:hover { transform: scale(1.13); }
-        .nn-node-body {
-          transition: filter 0.15s ease;
-        }
-        .nn-zoom:hover .nn-node-body {
-          filter: drop-shadow(2.5px 3.5px 0 rgba(23, 19, 33, 0.9));
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .nn-fill, .nn-flow, .nn-spin { animation: none; }
-          .nn-zoom { transition: none; }
-          .nn-zoom:hover { transform: none; }
-        }
-      `}</style>
+            return (
+              <Fragment key={layer.mod.slug}>
+                {/* Layer card */}
+                <article
+                  className="relative z-10 rounded-2xl border-2 border-ink bg-white shadow-[5px_5px_0_#171321]"
+                  aria-label={`${layer.mod.title}: ${layer.count} of ${layer.nodes.length} cleared`}
+                >
+                  <header
+                    className="flex flex-col justify-between gap-2 rounded-t-[14px] border-b-2 border-ink px-4 py-3 md:h-[128px]"
+                    style={{ background: tint }}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="chip text-ink" style={{ backgroundColor: layer.mod.color }}>
+                        {layer.mod.codename}
+                      </span>
+                      {layer.full && (
+                        <motion.span
+                          initial={{ scale: 0, rotate: -25 }}
+                          animate={{ scale: 1, rotate: -6 }}
+                          transition={{ type: "spring", stiffness: 320, damping: 14 }}
+                          className="chip bg-lime text-ink"
+                        >
+                          <Zap className="size-3.5" aria-hidden /> Energized
+                        </motion.span>
+                      )}
+                    </div>
+                    <h3 className="font-display text-xl font-extrabold leading-tight tracking-tight">
+                      {layer.mod.title}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-1 gap-1" aria-hidden>
+                        {layer.nodes.map((n) => (
+                          <span
+                            key={n.lesson.slug}
+                            className="h-2.5 flex-1 rounded-full border-[1.5px] border-ink"
+                            style={{ backgroundColor: n.done ? layer.mod.color : "#fff" }}
+                          />
+                        ))}
+                      </div>
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink/60">
+                        {loading ? "…" : `${layer.count}/${layer.nodes.length}`}
+                      </span>
+                    </div>
+                  </header>
+
+                  <ol className="m-0 list-none p-0" style={{ paddingBlock: PAD }}>
+                    {layer.nodes.map((node) => {
+                      const { lesson, done } = node;
+                      const isBoss = lesson.kind === "boss";
+                      const isNext = nextNode?.lesson.slug === lesson.slug;
+                      const kind = isBoss ? "Boss fight" : `Mission ${String(lesson.index + 1).padStart(2, "0")}`;
+                      const orbBg = done ? layer.mod.color : isNext ? LIME : isBoss ? SUN : "#FFFFFF";
+                      const meta = done
+                        ? `${isBoss ? "Defeated" : "Cleared"} · replay 0 XP`
+                        : `${kind} · ${lesson.minutes} min · ${lesson.xp} XP`;
+
+                      const rowClass = isBoss
+                        ? "border-ink bg-ink text-paper"
+                        : isNext
+                          ? "border-ink bg-sun/45"
+                          : "border-transparent hover:border-ink hover:bg-white";
+
+                      return (
+                        <li key={lesson.slug} className="relative px-2 py-1" style={{ height: ROW_H }}>
+                          {/* ports on the card edges (desktop) */}
+                          {li > 0 && (
+                            <span
+                              aria-hidden
+                              className="absolute left-[-9px] top-1/2 z-20 hidden size-3.5 -translate-y-1/2 rounded-full border-2 border-ink md:block"
+                              style={{ backgroundColor: done ? LIME : "#fff" }}
+                            />
+                          )}
+                          {!isLast && (
+                            <span
+                              aria-hidden
+                              className="absolute right-[-9px] top-1/2 z-20 hidden size-3.5 -translate-y-1/2 rounded-full border-2 border-ink md:block"
+                              style={{ backgroundColor: done ? LIME : "#fff" }}
+                            />
+                          )}
+
+                          <Link
+                            href={lessonPath(lesson)}
+                            onMouseEnter={() => setHot(lesson.slug)}
+                            onMouseLeave={() => setHot(null)}
+                            onFocus={() => setHot(lesson.slug)}
+                            onBlur={() => setHot(null)}
+                            aria-label={`${lesson.title}. ${kind}. ${
+                              done ? "Cleared" : `${lesson.xp} XP plus combo bonus`
+                            }${isNext ? ". Up next" : ""}`}
+                            className={`nm-row group relative flex h-full items-center gap-3 rounded-xl border-2 px-2.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vio ${rowClass}`}
+                          >
+                            <span className="relative grid shrink-0 place-items-center">
+                              {isNext && <span aria-hidden className="nm-ring absolute -inset-[7px] rounded-full border-2 border-dashed border-ink" />}
+                              <span
+                                className={`nm-pop relative grid place-items-center rounded-full border-2 border-ink shadow-[2px_2px_0_#171321] ${
+                                  isBoss ? "size-12" : "size-11"
+                                }`}
+                                style={{ backgroundColor: orbBg, animationDelay: `${li * 120 + lesson.index * 60}ms` }}
+                              >
+                                {done ? (
+                                  <CheckMark size={isBoss ? 26 : 22} />
+                                ) : isBoss ? (
+                                  <Skull className="block size-6 text-ink" strokeWidth={2.4} aria-hidden />
+                                ) : (
+                                  <span className="font-display text-lg font-extrabold leading-none text-ink">
+                                    {lesson.index + 1}
+                                  </span>
+                                )}
+                              </span>
+                            </span>
+
+                            <span className="min-w-0 flex-1">
+                              <span className="line-clamp-2 font-display text-[14px] font-bold leading-snug">
+                                {lesson.title}
+                              </span>
+                              <span
+                                className={`mt-0.5 block truncate font-mono text-[10px] font-bold uppercase tracking-wider ${
+                                  isBoss ? (done ? "text-lime" : "text-sun") : done ? "text-ink/45" : "text-ink/60"
+                                }`}
+                              >
+                                {meta}
+                              </span>
+                            </span>
+
+                            <ArrowRight
+                              aria-hidden
+                              className={`size-4 shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100 ${
+                                isBoss ? "text-paper" : "text-ink"
+                              }`}
+                            />
+
+                            {isNext && (
+                              <span className="absolute -top-2.5 right-2 rotate-3 rounded-md border-2 border-ink bg-lime px-1.5 font-mono text-[9px] font-bold uppercase leading-4 tracking-wider text-ink shadow-[2px_2px_0_#171321]">
+                                Next up
+                              </span>
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </article>
+
+                {/* Wire channel to the next layer */}
+                {!isLast && nextLayerData && (
+                  <div aria-hidden className="relative">
+                    <svg
+                      className="hidden md:block"
+                      width="100%"
+                      height={boardH}
+                      viewBox={`0 0 100 ${boardH}`}
+                      preserveAspectRatio="none"
+                    >
+                      {layer.nodes
+                        .flatMap((s, si) => {
+                          const aligned = Math.round(
+                            (si / Math.max(1, layer.nodes.length - 1)) *
+                              Math.max(0, nextLayerData.nodes.length - 1),
+                          );
+                          return nextLayerData.nodes
+                            .map((t, ti) => ({ s, t, si, ti }))
+                            .filter((e) => Math.abs(e.ti - aligned) <= 1);
+                        })
+                        .sort(
+                          (a, b) =>
+                            Number(a.s.done) + Number(a.t.done) - (Number(b.s.done) + Number(b.t.done)),
+                        )
+                        .map(({ s, t, si, ti }) => {
+                          const y1 = rowCenter(si);
+                          const y2 = rowCenter(ti);
+                          const d = `M 0 ${y1} C 50 ${y1}, 50 ${y2}, 100 ${y2}`;
+                          const both = s.done && t.done;
+                          const some = s.done || t.done;
+                          const isHot = hot === s.lesson.slug || hot === t.lesson.slug;
+                          const key = `${s.lesson.slug}>${t.lesson.slug}`;
+
+                          if (both) {
+                            return (
+                              <g key={key}>
+                                <path d={d} fill="none" stroke={INK} strokeWidth={isHot ? 7 : 6} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                                <path d={d} fill="none" stroke={LIME} strokeWidth={isHot ? 3.5 : 3} strokeLinecap="round" strokeDasharray="7 9" vectorEffect="non-scaling-stroke" className="nm-flow" />
+                              </g>
+                            );
+                          }
+                          if (some) {
+                            return (
+                              <path
+                                key={key}
+                                d={d}
+                                fill="none"
+                                stroke={s.done ? layer.mod.color : nextLayerData.mod.color}
+                                strokeWidth={isHot ? 3 : 2.2}
+                                strokeOpacity={isHot ? 1 : 0.75}
+                                strokeLinecap="round"
+                                vectorEffect="non-scaling-stroke"
+                              />
+                            );
+                          }
+                          return (
+                            <path
+                              key={key}
+                              d={d}
+                              fill="none"
+                              stroke={INK}
+                              strokeWidth={isHot ? 2.2 : 1.5}
+                              strokeOpacity={isHot ? 0.75 : 0.22}
+                              strokeDasharray="2 6"
+                              strokeLinecap="round"
+                              vectorEffect="non-scaling-stroke"
+                            />
+                          );
+                        })}
+                    </svg>
+
+                    {/* mobile connector */}
+                    <div className="flex flex-col items-center py-2 md:hidden">
+                      <span className="h-6 border-l-2 border-dashed border-ink/40" />
+                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-ink/45">signal</span>
+                      <span className="h-6 border-l-2 border-dashed border-ink/40" />
+                    </div>
+                  </div>
+                )}
+              </Fragment>
+            );
+          })}
+        </div>
+
+        {!compact && (
+          <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.22em] text-ink/45">
+            Nothing is locked — jump into any mission · clear all of a layer to energize it · progress saves in this
+            browser
+          </p>
+        )}
+      </div>
+
+      <style>{CSS}</style>
     </section>
   );
 }
 
-function isNextLabel(
-  node: { lesson: { slug: string } },
-  nextNode: { lesson: { slug: string } } | undefined,
-) {
-  return !!nextNode && node.lesson.slug === nextNode.lesson.slug;
+const CSS = `
+.nm-outline { color: transparent; -webkit-text-stroke: 2px ${INK}; }
+
+.nm-board {
+  background-image: radial-gradient(rgba(23,19,33,0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
+
+.nm-grid { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 768px) {
+  .nm-grid { grid-template-columns: var(--cols); align-items: start; }
+}
+
+.nm-row { transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease; }
+.nm-row:hover, .nm-row:focus-visible { transform: translate(-2px, -2px); box-shadow: 3px 3px 0 ${INK}; }
+.nm-row:active { transform: translate(1px, 1px); box-shadow: 0 0 0 ${INK}; }
+
+.nm-ring { animation: nm-spin 8s linear infinite; }
+.nm-flow { animation: nm-flow 1s linear infinite; }
+.nm-pop { animation: nm-pop 420ms cubic-bezier(.34,1.56,.64,1) both; }
+.nm-marquee { animation: nm-marquee 38s linear infinite; }
+.nm-bob { animation: nm-bob 3.2s ease-in-out infinite; }
+
+@keyframes nm-spin { to { transform: rotate(360deg); } }
+@keyframes nm-flow { to { stroke-dashoffset: -32; } }
+@keyframes nm-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes nm-marquee { to { transform: translateX(-50%); } }
+@keyframes nm-bob { 0%, 100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-5px) rotate(-1deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-ring, .nm-flow, .nm-pop, .nm-marquee, .nm-bob { animation: none; }
+  .nm-row { transition: none; }
+  .nm-row:hover, .nm-row:focus-visible { transform: none; }
+}
+`;
