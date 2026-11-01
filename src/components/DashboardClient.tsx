@@ -92,25 +92,6 @@ export default function DashboardClient() {
         <NeuralMap />
       </div>
 
-      {/* continue */}
-      {nextUp && done > 0 && (
-        <Link
-          href={`/learn/${nextUp.module}/${nextUp.slug}`}
-          className="sticker mt-6 flex items-center justify-between gap-3 bg-lime p-4 transition-transform hover:-translate-y-0.5"
-        >
-          <span className="flex items-center gap-3">
-            <span className="size-2.5 animate-pulse rounded-full bg-ink" />
-            <span>
-              <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/60">
-                Resume transmission
-              </span>
-              <span className="block font-display text-lg font-extrabold text-ink">{nextUp.title}</span>
-            </span>
-          </span>
-          <ArrowRight className="size-5 shrink-0" />
-        </Link>
-      )}
-
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <section>
           <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Badge shelf</h2>
