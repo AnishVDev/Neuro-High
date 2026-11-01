@@ -111,16 +111,6 @@ export default function DashboardClient() {
         <NeuralMap />
       </div>
 
-      {/* modules + badges */}
-      <div className="mt-12">
-        <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Module control</h2>
-        <div className="mt-4 grid gap-6 md:grid-cols-3">
-          {MODULES.map((m, i) => (
-            <ModuleCard key={m.slug} mod={m} index={i} />
-          ))}
-        </div>
-      </div>
-
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <section>
           <h2 className="font-display text-2xl font-extrabold tracking-tight text-ink">Badge shelf</h2>
