@@ -1,16 +1,18 @@
 import { Sparkle } from "lucide-react";
 
 const ITEMS = [
-  "neural networks",
-  "prompt craft",
-  "hallucination hunting",
-  "training data",
-  "academic integrity",
-  "bias busting",
-  "deepfake radar",
-  "study superpowers",
-  "next-token prediction",
-  "full stack human",
+  "AI in the classroom",
+  "think critically",
+  "smarter study strategies",
+  "research with confidence",
+  "recognize misinformation",
+  "prepare for the future",
+  "creativity meets technology",
+  "academic integrity matters",
+  "turn curiosity into discovery",
+  "learn beyond the textbook",
+  "make informed decisions",
+  "technology, on your terms",
 ];
 
 export default function Marquee({
