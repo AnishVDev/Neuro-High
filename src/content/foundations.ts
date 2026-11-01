@@ -308,7 +308,7 @@ export const FOUNDATIONS_LESSONS: Lesson[] = [
         heading: "Tokens: the building blocks of AI text",
         body: [
           "Language models don't read text letter by letter or always word by word. They work with tokens, which are chunks of text. A token might be a whole word like \"the,\" part of a word like \"believ,\" a number, or a punctuation mark. Your message is split into tokens, each token is turned into numbers, and those numbers pass through a very large neural network.",
-          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none. (These numbers are just an illustration.)",
+          "Based on patterns learned from a huge amount of text, the network assigns a probability to every possible next token. For \"The capital of France is…,\" the token \"Paris\" would get a very high probability, \"Lyon\" a very low one, and \"spaghetti\" almost none.",
         ],
       },
       {
