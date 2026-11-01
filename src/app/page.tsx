@@ -36,7 +36,6 @@ export default function HomePage() {
   return (
     <>
       {/* ─── HERO ─────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden border-b-2 border-ink">
         <NeuralCanvas className="absolute inset-0 h-full w-full" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-[1.25fr_1fr] lg:pb-20 lg:pt-20">
           <div>
