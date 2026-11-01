@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Check, Skull } from "lucide-react";
+import { Check, Skull, Zap } from "lucide-react";
 import { MODULES, lessonPath, lessonsOf } from "@/content";
 import { useProgress } from "./ProgressProvider";
-import { Check, Skull, Zap } from "lucide-react";
 import { rankFor } from "@/lib/gamification";
 
 /**
