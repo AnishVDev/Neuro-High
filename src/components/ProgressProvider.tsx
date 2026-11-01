@@ -5,14 +5,14 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { Award, BrainCircuit, Cpu, Crown, Flame, HeartHandshake, SearchCheck, Sparkles, Target, Wand2, Wrench, Zap } from "lucide-react";
-import type { Badge, Rank } from "@/lib/gamification";
+import { BADGES, lessonXp, randomCodename, rankFor, type Badge, type Rank } from "@/lib/gamification";
+import { lessonsOf } from "@/content";
 import type { Lesson } from "@/content/types";
 
 export type CompletionInfo = {
@@ -78,12 +78,86 @@ export function BadgeIcon({ id, className }: { id: string; className?: string })
 
 let toastId = 0;
 
+/* ── Local storage layer (replaces /api/progress) ──────────────────── */
+
+const STORAGE_KEY = "neurohigh-progress-v1";
+
+type SavedState = LearnerState & { lastActiveDate: string | null };
+
+function dayKey(d = new Date()) {
+  return d.toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+}
+
+function freshState(): SavedState {
+  return {
+    learner: { codename: randomCodename(), xp: 0, streak: 1 },
+    completed: {},
+    badges: [],
+    lastActiveDate: null,
+  };
+}
+
+function loadSaved(): SavedState {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return { ...freshState(), ...JSON.parse(raw) };
+  } catch {
+    /* corrupted: start fresh */
+  }
+  return freshState();
+}
+
+function persist(s: SavedState) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+  } catch {
+    /* storage blocked or full */
+  }
+}
+
+function localStreak(last: string | null, days: number) {
+  const today = dayKey();
+  if (last === today) return { days, date: today };
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return { days: last === dayKey(yesterday) ? days + 1 : 1, date: today };
+}
+
+const MODULE_BADGES = {
+  foundations: "data-whisperer",
+  toolkit: "kit-master",
+  ethics: "team-human",
+} as const;
+
+function earnedBadges(completed: LearnerState["completed"], hints: string[]): string[] {
+  const earned = new Set<string>();
+  const slugs = Object.keys(completed);
+  if (slugs.length >= 1) earned.add("first-contact");
+  if (slugs.some((s) => completed[s].correct === completed[s].total && completed[s].attempts === 1))
+    earned.add("flawless");
+  if (slugs.some((s) => completed[s].maxCombo >= 5)) earned.add("hot-streak");
+
+  let allModules = true;
+  for (const mod of ["foundations", "toolkit", "ethics"] as const) {
+    if (lessonsOf(mod).every((l) => completed[l.slug])) earned.add(MODULE_BADGES[mod]);
+    else allModules = false;
+  }
+  if (allModules) earned.add("triple-threat");
+
+  for (const h of hints) if (BADGES.some((b) => b.id === h)) earned.add(h);
+  return Array.from(earned);
+}
+
+const toBadges = (ids: string[]) =>
+  ids.map((id) => BADGES.find((b) => b.id === id)).filter(Boolean) as Badge[];
+
+/* ── Provider ──────────────────────────────────────────────────────── */
+
 export default function ProgressProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<LearnerState | null>(null);
   const [loading, setLoading] = useState(true);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [rankUp, setRankUp] = useState<Rank | null>(null);
-  const busyRef = useRef(false);
 
   const pushToast = useCallback((t: ToastPayload) => {
     const id = ++toastId;
@@ -93,18 +167,18 @@ export default function ProgressProvider({ children }: { children: ReactNode }) 
     }, 4200);
   }, []);
 
+  // Load saved progress after mount (localStorage doesn't exist during SSR), sync across tabs
   useEffect(() => {
-    let alive = true;
-    fetch("/api/progress")
-      .then((r) => r.json())
-      .then((d) => {
-        if (alive) setState(d.state);
-      })
-      .catch(() => {})
-      .finally(() => alive && setLoading(false));
-    return () => {
-      alive = false;
+    const s = loadSaved();
+    persist(s);
+    setState(s);
+    setLoading(false);
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setState(loadSaved());
     };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const handleAwarded = useCallback(
@@ -124,74 +198,73 @@ export default function ProgressProvider({ children }: { children: ReactNode }) 
 
   const complete = useCallback(
     async (lesson: Lesson, result: QuizResult, hints: string[] = []) => {
-      if (busyRef.current) return;
-      busyRef.current = true;
-      try {
-        const r = await fetch("/api/progress", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lessonSlug: lesson.slug, ...result, badgeHints: hints }),
-        });
-        const d = await r.json();
-        if (r.ok && d.state) {
-          setState(d.state);
-          handleAwarded({ ...d.awarded, badges: d.awarded.badges ?? [] });
-        }
-      } finally {
-        busyRef.current = false;
+      if (result.correct < result.total) return;
+
+      const before = loadSaved();
+      const already = !!before.completed[lesson.slug];
+      let next: SavedState = before;
+      let gained = 0;
+
+      // First clear awards XP; replays give 0 (same rule as the old API)
+      if (!already) {
+        gained = lessonXp(lesson.xp, result.maxCombo);
+        const streak = localStreak(before.lastActiveDate, before.learner.streak);
+        next = {
+          ...before,
+          learner: { ...before.learner, xp: before.learner.xp + gained, streak: streak.days },
+          lastActiveDate: streak.date,
+          completed: {
+            ...before.completed,
+            [lesson.slug]: { ...result, at: new Date().toISOString() },
+          },
+        };
       }
+
+      const newBadges = earnedBadges(next.completed, hints).filter((b) => !next.badges.includes(b));
+      next = { ...next, badges: [...next.badges, ...newBadges] };
+
+      persist(next);
+      setState(next);
+
+      const oldRank = rankFor(before.learner.xp);
+      const newRank = rankFor(next.learner.xp);
+      handleAwarded({
+        xp: gained,
+        already,
+        badges: toBadges(newBadges),
+        rankUp: newRank.minXp !== oldRank.minXp ? newRank : null,
+      });
     },
     [handleAwarded],
   );
 
   const pingBadges = useCallback(
     async (hints: string[]) => {
-      try {
-        const r = await fetch("/api/progress", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ badgeHints: hints }),
-        });
-        const d = await r.json();
-        if (r.ok && d.state) {
-          setState(d.state);
-          handleAwarded({ ...d.awarded, badges: d.awarded.badges ?? [], rankUp: null });
-        }
-      } catch {
-        /* offline-tolerant */
-      }
+      const s = loadSaved();
+      const newBadges = earnedBadges(s.completed, hints).filter((b) => !s.badges.includes(b));
+      if (newBadges.length === 0) return;
+      const next = { ...s, badges: [...s.badges, ...newBadges] };
+      persist(next);
+      setState(next);
+      handleAwarded({ xp: 0, badges: toBadges(newBadges), rankUp: null });
     },
     [handleAwarded],
   );
 
   const rename = useCallback(async (codename: string) => {
-    try {
-      const r = await fetch("/api/progress", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ codename }),
-      });
-      if (r.ok) {
-        setState((s) => (s ? { ...s, learner: { ...s.learner, codename } } : s));
-        return true;
-      }
-    } catch {
-      /* noop */
-    }
-    return false;
+    const clean = codename.trim().slice(0, 24);
+    if (clean.length < 2) return false;
+    const s = loadSaved();
+    const next = { ...s, learner: { ...s.learner, codename: clean } };
+    persist(next);
+    setState(next);
+    return true;
   }, []);
 
   const reset = useCallback(async () => {
-    try {
-      await fetch("/api/progress", { method: "DELETE" });
-      setState({ learner: { codename: "", xp: 0, streak: 1 }, completed: {}, badges: [] });
-      // Re-hydrate a fresh learner
-      const r = await fetch("/api/progress");
-      const d = await r.json();
-      if (d.state) setState(d.state);
-    } catch {
-      /* noop */
-    }
+    const fresh = freshState();
+    persist(fresh);
+    setState(fresh);
   }, []);
 
   const isCompleted = useCallback((slug: string) => !!state?.completed[slug], [state]);
