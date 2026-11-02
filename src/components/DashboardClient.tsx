@@ -12,7 +12,7 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
-const LIME = "#C6F32E";
+const PROGRESS_GREEN = "#5B8C0A";
 
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
@@ -26,7 +26,7 @@ export default function DashboardClient() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-10 sm:px-6">
       {/* header */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <p className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-vio">
           <LayoutDashboard className="-my-0.5 size-5 shrink-0" /> Mission control
         </p>
@@ -46,8 +46,8 @@ export default function DashboardClient() {
 
       {/* stat row */}
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.06 }}
         className="mt-8 grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]"
       >
@@ -66,7 +66,7 @@ export default function DashboardClient() {
               className="h-full rounded-full transition-all"
               style={{
                 width: `${(done / TOTAL_LESSONS) * 100}%`,
-                background: LIME,
+                backgroundColor: PROGRESS_GREEN,
               }}
             />
           </div>
@@ -144,13 +144,13 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      {/* Forces the XpBar fill to the solid site lime, overriding any internal gradient */}
+      {/* Keep the XP bar fill solid green, even if XpBar applies a gradient */}
       <style>{`
         .xp-card-wrapper [style*="width"],
         .xp-card-wrapper [role="progressbar"] > div,
         .xp-card-wrapper .bar-fill {
+          background-color: ${PROGRESS_GREEN} !important;
           background-image: none !important;
-          background-color: ${LIME} !important;
         }
       `}</style>
     </div>
