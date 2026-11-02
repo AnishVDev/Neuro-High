@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { Award, BrainCircuit, Cpu, Crown, Flame, HeartHandshake, SearchCheck, Sparkles, Target, Wand2, Wrench, Zap } from "lucide-react";
 import { BADGES, lessonXp, randomCodename, rankFor, type Badge, type Rank } from "@/lib/gamification";
+import { newLeaderboardSeed } from "@/lib/leaderboard";
 import { lessonsOf } from "@/content";
 import type { Lesson } from "@/content/types";
 
@@ -27,6 +28,8 @@ export type LearnerState = {
   learner: { codename: string; xp: number; streak: number };
   completed: Record<string, CompletionInfo>;
   badges: string[];
+  /** Seeds the simulated leaderboard. A new one is created on every reset. */
+  leaderboardSeed?: number;
 };
 
 type QuizResult = { correct: number; total: number; maxCombo: number; attempts: number };
@@ -93,6 +96,7 @@ function freshState(): SavedState {
     learner: { codename: randomCodename(), xp: 0, streak: 1 },
     completed: {},
     badges: [],
+    leaderboardSeed: newLeaderboardSeed(),
     lastActiveDate: null,
   };
 }
@@ -262,7 +266,7 @@ export default function ProgressProvider({ children }: { children: ReactNode }) 
   }, []);
 
   const reset = useCallback(async () => {
-    const fresh = freshState();
+    const fresh = freshState(); // includes a new leaderboardSeed → board reshuffles
     persist(fresh);
     setState(fresh);
   }, []);
