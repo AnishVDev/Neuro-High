@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { Bricolage_Grotesque, Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 import ProgressProvider from "@/components/ProgressProvider";
-import RouteScrollReset from "@/components/RouteScrollReset";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -36,7 +35,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="grain dotgrid antialiased">
         <ProgressProvider>
-          <RouteScrollReset />
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>
