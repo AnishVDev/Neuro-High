@@ -243,8 +243,8 @@ export function LeaderboardFull() {
           See where you stand
         </h1>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-          You're ranked against {LEADERBOARD_SIZE - 1} simulated players. Your position updates as you
-          earn XP, and the board reshuffles if you reset your progress. You can change your name on
+          You're ranked against {LEADERBOARD_SIZE - 1} players. Your position updates as you earn XP,
+          and reseting will restart your ranking. You can change your name on
           your{" "}
           <Link href="/dashboard" className="font-bold text-ink underline decoration-lime decoration-2 underline-offset-2">
             dashboard
