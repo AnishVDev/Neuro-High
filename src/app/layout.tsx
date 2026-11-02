@@ -9,19 +9,20 @@ import Footer from "@/components/Footer";
 const display = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--f-display",
-  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 });
 
 const body = Space_Grotesk({
   subsets: ["latin"],
   variable: "--f-body",
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 const mono = Space_Mono({
   subsets: ["latin"],
   variable: "--f-mono",
   weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +33,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} scroll-pt-20`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${mono.variable} scroll-pt-20`}
+      suppressHydrationWarning
+    >
       <body className="grain dotgrid antialiased">
         <ProgressProvider>
           <div className="flex min-h-screen flex-col">
