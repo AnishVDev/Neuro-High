@@ -136,7 +136,7 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
           <span className="flex items-center gap-1"> XP
             <Flame className="size-4 text-coral" /> Combo +{bonus} XP
           </span>
-          <span>{misses === 0 ? "Flawless" : `${misses} miss${mistakes > 1 ? "es" : ""}`}</span>
+          <span>{misses === 0 ? "Flawless" : `${misses} mistake${misses > 1 ? "s" : ""}`}</span>
         </div>
         <div className="mx-auto mt-6 flex max-w-xs flex-col gap-2.5 sm:flex-row sm:justify-center">
           {!banked && (
