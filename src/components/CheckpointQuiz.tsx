@@ -3,12 +3,27 @@
 import { useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import confetti from "canvas-confetti";
-import { ArrowRight, Banknote, CheckCircle2, Flame, RotateCcw, ShieldQuestion, XCircle } from "lucide-react";
+import {
+  ArrowRight,
+  Banknote,
+  CheckCircle2,
+  Flame,
+  RotateCcw,
+  ShieldQuestion,
+  XCircle,
+} from "lucide-react";
 import type { Lesson } from "@/content/types";
 import { useProgress } from "./ProgressProvider";
 import { comboBonus } from "@/lib/gamification";
 
-const CONF_COLORS = ["#7B5CFF", "#FF6B4A", "#43D9FF", "#C6F32E", "#FFD645", "#FF8BD1"];
+const CONF_COLORS = [
+  "#7B5CFF",
+  "#FF6B4A",
+  "#43D9FF",
+  "#C6F32E",
+  "#FFD645",
+  "#FF8BD1",
+];
 
 export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
   const { complete, isCompleted, completion } = useProgress();
@@ -34,13 +49,16 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
   const pick = (i: number) => {
     if (picked !== null) return;
     setPicked(i);
+
     const right = i === qs[qIdx].answer;
+
     if (right) {
       setSolved((s) => {
         const n = [...s];
         n[qIdx] = true;
         return n;
       });
+
       setCombo((c) => {
         const n = c + 1;
         setMaxCombo((m) => Math.max(m, n));
@@ -54,15 +72,24 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
 
   const next = () => {
     setPicked(null);
+
     const findNext = (from: number): number => {
-      for (let i = from; i < qs.length; i++) if (!solved[i]) return i;
-      for (let i = 0; i < from; i++) if (!solved[i]) return i;
+      for (let i = from; i < qs.length; i++) {
+        if (!solved[i]) return i;
+      }
+
+      for (let i = 0; i < from; i++) {
+        if (!solved[i]) return i;
+      }
+
       return -1;
     };
+
     if (solved.every(Boolean)) {
       finish();
       return;
     }
+
     const nx = findNext(qIdx + 1);
     if (nx === -1) finish();
     else setQIdx(nx);
@@ -72,6 +99,7 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
     setPassed(true);
     if (refire.current) return;
     refire.current = true;
+
     confetti({
       particleCount: 140,
       spread: 80,
@@ -79,6 +107,7 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
       colors: CONF_COLORS,
       disableForReducedMotion: true,
     });
+
     setTimeout(
       () =>
         confetti({
@@ -91,6 +120,7 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
         }),
       250,
     );
+
     setTimeout(
       () =>
         confetti({
@@ -130,19 +160,39 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
         <p className="font-mono text-xs font-bold uppercase tracking-[0.3em] text-sun">
           {isBoss ? "Boss defeated" : "Checkpoint cleared"}
         </p>
-        <p className="mt-3 font-display text-5xl font-extrabold text-lime sm:text-6xl">+{totalXp} XP</p>
-        <div className="mx-auto mt-4 flex max-w-xs items-center justify-center gap-6 font-mono text-xs uppercase tracking-wider text-paper/60">
-          <span>Base {lesson.xp} XP</span>
-          <span className="flex items-center gap-1">
-            <Flame className="size-4 text-coral" /> Combo +{bonus} XP
-          </span>
-          <span>{misses === 0 ? "Flawless" : `${misses} mistake${misses > 1 ? "s" : ""}`}</span>
+
+        <p className="mt-3 font-display text-5xl font-extrabold text-lime sm:text-6xl">
+          +{totalXp} XP
+        </p>
+
+        {/* Results stay on one line */}
+        <div className="mx-auto mt-4 w-full overflow-x-auto">
+          <div className="flex w-max min-w-full items-center justify-center gap-2 whitespace-nowrap font-mono text-[10px] uppercase tracking-normal text-paper/60 sm:gap-6 sm:text-xs sm:tracking-wider">
+            <span>Base {lesson.xp} XP</span>
+
+            <span className="flex items-center gap-1">
+              <Flame className="size-3.5 shrink-0 text-coral sm:size-4" />
+              Combo +{bonus} XP
+            </span>
+
+            <span>
+              {misses === 0
+                ? "Flawless"
+                : `${misses} mistake${misses > 1 ? "s" : ""}`}
+            </span>
+          </div>
         </div>
+
         <div className="mx-auto mt-6 flex max-w-xs flex-col gap-2.5 sm:flex-row sm:justify-center">
           {!banked && (
             <button
               onClick={async () => {
-                await complete(lesson, { correct: qs.length, total: qs.length, maxCombo, attempts: 1 + misses });
+                await complete(lesson, {
+                  correct: qs.length,
+                  total: qs.length,
+                  maxCombo,
+                  attempts: 1 + misses,
+                });
                 setBanked(true);
               }}
               className="btn btn-primary"
@@ -151,10 +201,15 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
               {alreadyDone ? "Replay banked (0 XP)" : "Bank the XP"}
             </button>
           )}
-          <button onClick={reset} className="btn !border-paper bg-transparent text-paper !shadow-[3px_3px_0_rgba(255,246,233,0.35)]">
+
+          <button
+            onClick={reset}
+            className="btn !border-paper bg-transparent text-paper !shadow-[3px_3px_0_rgba(255,246,233,0.35)]"
+          >
             <RotateCcw className="size-4" /> Re-run it
           </button>
         </div>
+
         {banked && (
           <p className="mt-4 font-mono text-xs uppercase tracking-wider text-lime">
             ✓ Logged to your neural build — scroll down to continue
@@ -172,12 +227,22 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
           <ShieldQuestion className="size-4 text-sun" />
           {isBoss ? "Boss fight" : "Checkpoint"} · Q{qIdx + 1}/{qs.length}
         </span>
+
         <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-wider">
-          <span className={`flex items-center gap-1 ${combo >= 2 ? "text-coral" : "text-paper/40"}`}>
+          <span
+            className={`flex items-center gap-1 ${
+              combo >= 2 ? "text-coral" : "text-paper/40"
+            }`}
+          >
             <Flame className="size-4" />
             combo ×{combo}
           </span>
-          {alreadyDone && <span className="chip !border-paper/40 bg-transparent text-paper/60">replaying · best {prev?.maxCombo ?? 0} combo</span>}
+
+          {alreadyDone && (
+            <span className="chip !border-paper/40 bg-transparent text-paper/60">
+              replaying · best {prev?.maxCombo ?? 0} combo
+            </span>
+          )}
         </div>
       </div>
 
@@ -202,17 +267,27 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
             exit={{ opacity: 0, x: -24 }}
             transition={{ duration: 0.16 }}
           >
-            <p className="font-display text-lg font-bold leading-snug text-ink sm:text-xl">{q.q}</p>
+            <p className="font-display text-lg font-bold leading-snug text-ink sm:text-xl">
+              {q.q}
+            </p>
 
             <div className="mt-4 grid gap-2.5">
               {q.options.map((opt, i) => {
                 const isPicked = picked === i;
                 const isAnswer = i === q.answer;
                 const revealed = picked !== null;
-                let cls = "border-ink/25 bg-white hover:border-ink hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#171321]";
-                if (revealed && isAnswer) cls = "border-ink bg-lime/35 shadow-[3px_3px_0_#171321]";
-                else if (revealed && isPicked) cls = "border-ink bg-coral/25";
-                else if (revealed) cls = "border-ink/15 bg-white opacity-55";
+
+                let cls =
+                  "border-ink/25 bg-white hover:border-ink hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#171321]";
+
+                if (revealed && isAnswer) {
+                  cls = "border-ink bg-lime/35 shadow-[3px_3px_0_#171321]";
+                } else if (revealed && isPicked) {
+                  cls = "border-ink bg-coral/25";
+                } else if (revealed) {
+                  cls = "border-ink/15 bg-white opacity-55";
+                }
+
                 return (
                   <button
                     key={i}
@@ -223,9 +298,16 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
                     <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-md border-2 border-ink bg-paper font-mono text-[11px] font-bold">
                       {String.fromCharCode(65 + i)}
                     </span>
+
                     <span className="flex-1">{opt}</span>
-                    {revealed && isAnswer && <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#2E7D0F]" />}
-                    {revealed && isPicked && !isAnswer && <XCircle className="mt-0.5 size-5 shrink-0 text-[#B42318]" />}
+
+                    {revealed && isAnswer && (
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-[#2E7D0F]" />
+                    )}
+
+                    {revealed && isPicked && !isAnswer && (
+                      <XCircle className="mt-0.5 size-5 shrink-0 text-[#B42318]" />
+                    )}
                   </button>
                 );
               })}
@@ -246,8 +328,10 @@ export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
                     </span>
                     {q.explain}
                   </p>
+
                   <button onClick={next} className="btn btn-violet shrink-0 !py-2">
-                    {answeredRight && solved.every(Boolean) ? "Finish" : "Next"} <ArrowRight className="size-4" />
+                    {answeredRight && solved.every(Boolean) ? "Finish" : "Next"}{" "}
+                    <ArrowRight className="size-4" />
                   </button>
                 </motion.div>
               )}
