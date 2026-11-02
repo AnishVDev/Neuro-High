@@ -37,8 +37,9 @@ export default function DashboardClient() {
           <span className="chip bg-white text-ink/60">agent on record</span>
         </div>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-          Your codename, your XP, your badges, and one very ambitious neural network under
-          construction. Everything below is earned, none of it is given.
+          This is where you can track your progress: your codename, your XP, the badges you've
+          earned, and the neural network that grows as you complete lessons. Everything here
+          reflects work you've actually done.
         </p>
       </motion.div>
 
@@ -54,18 +55,24 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Missions cleared <Target className="size-4 text-vio" />
+            Missions cleared <Target className="size-5 shrink-0 text-vio" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {done}<span className="text-ink/30">/{TOTAL_LESSONS}</span>
           </p>
           <div className="mt-1 h-2.5 rounded-full border border-ink/40 bg-paper p-[1.5px]">
-            <div className="h-full rounded-full bg-vio transition-all" style={{ width: `${(done / TOTAL_LESSONS) * 100}%` }} />
+            <div
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${(done / TOTAL_LESSONS) * 100}%`,
+                background: "linear-gradient(90deg, #7B5CFF 0%, #0EA8CC 100%)",
+              }}
+            />
           </div>
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Badges <Award className="size-4 text-sun" />
+            Badges <Award className="size-5 shrink-0 text-sun" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {badges}<span className="text-ink/30">/{BADGES.length}</span>
@@ -76,7 +83,7 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Day streak <Flame className="size-4 text-coral" />
+            Day streak <Flame className="size-5 shrink-0 text-coral" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {streak}<span className="text-lg text-ink/30"> day{streak === 1 ? "" : "s"}</span>
@@ -91,7 +98,6 @@ export default function DashboardClient() {
       <div className="mt-8">
         <NeuralMap />
       </div>
-
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
         <section>
