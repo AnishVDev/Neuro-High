@@ -12,7 +12,7 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
-const PROGRESS_GREEN = "#5B8C0A";
+const PROGRESS_GREEN = "#98C720";
 
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
