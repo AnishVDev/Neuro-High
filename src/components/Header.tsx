@@ -11,8 +11,8 @@ import { rankFor } from "@/lib/gamification";
 const LINKS = [
   { href: "/", label: "Home", icon: House },
   { href: "/#modules", label: "Modules", icon: Rocket },
-  { href: "/dashboard", label: "My Build", icon: LayoutDashboard },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/dashboard", label: "My Build", icon: LayoutDashboard },
 ];
 
 export default function Header() {
@@ -20,7 +20,14 @@ export default function Header() {
   const { state } = useProgress();
   const [open, setOpen] = useState(false);
 
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    setOpen(false);
+    if (!window.location.hash) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      });
+    }
+  }, [pathname]);
 
   const xp = state?.learner.xp ?? 0;
   const rank = rankFor(xp);
