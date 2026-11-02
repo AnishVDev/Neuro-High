@@ -13,6 +13,7 @@ import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
 const PROGRESS_GREEN = "#98C720";
+const XP_PURPLE = "#C4A7F5";
 
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
@@ -144,12 +145,12 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      {/* Keep the XP bar fill solid green, even if XpBar applies a gradient */}
+      {/* Keep the XP bar fill solid light purple, even if XpBar applies a gradient */}
       <style>{`
         .xp-card-wrapper [style*="width"],
         .xp-card-wrapper [role="progressbar"] > div,
         .xp-card-wrapper .bar-fill {
-          background-color: ${PROGRESS_GREEN} !important;
+          background-color: ${XP_PURPLE} !important;
           background-image: none !important;
         }
       `}</style>
