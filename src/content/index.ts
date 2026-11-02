@@ -7,52 +7,52 @@ export const MODULES: Module[] = [
   {
     slug: "foundations",
     order: 1,
-    title: "Inside the Machine",
+    title: "How AI Works",
     codename: "MODULE 01",
-    tagline: "How AI actually works",
+    tagline: "What's really happening inside AI tools",
     description:
-      "No hype, no sci-fi. Learn what machine learning really is, how neural nets set their dials, and why chatbots predict words instead of knowing facts.",
+      "AI isn't magic, and it doesn't think the way people do. In this unit, you'll learn what machine learning is, how a neural network learns from examples, and why chatbots sometimes say things that aren't true.",
     color: "#7B5CFF",
     softColor: "#EEE8FF",
     emblem: "/img/emblem-foundations.png",
     outcomes: [
-      "Explain the difference between rules and learning",
-      "Train a real classifier with your own clicks",
-      "Trace how prediction machines invent fake facts",
+      "Explain how a program that learns is different from one that follows rules",
+      "Train a simple classifier by labeling examples yourself",
+      "Explain why chatbots sometimes make up facts",
     ],
   },
   {
     slug: "toolkit",
     order: 2,
-    title: "The Toolkit",
+    title: "Using AI Effectively",
     codename: "MODULE 02",
-    tagline: "Use AI like a pro",
+    tagline: "Get better results from AI tools",
     description:
-      "Prompt anatomy, iteration loops, verification discipline, and five study moves that turn a chatbot into the best tutor you've ever had.",
+      "In this unit, you'll learn how to write clear prompts, improve a response by revising your request, and check AI answers for mistakes. You'll also practice five ways to use a chatbot as a study partner that helps you learn instead of just giving you answers.",
     color: "#0EA8CC",
     softColor: "#E0F7FD",
     emblem: "/img/emblem-toolkit.png",
     outcomes: [
-      "Write spec-sheet prompts that actually work",
-      "Iterate, chain, and critique like a power user",
-      "Catch hallucinations before they catch you",
+      "Write prompts that clearly describe what you want",
+      "Improve AI responses with feedback and follow-up questions",
+      "Fact-check AI answers and spot made-up information",
     ],
   },
   {
     slug: "ethics",
     order: 3,
-    title: "Human in the Loop",
+    title: "Using AI Responsibly",
     codename: "MODULE 03",
-    tagline: "Use AI right",
+    tagline: "Make thoughtful choices about AI",
     description:
-      "Academic integrity in the gray zone, bias at machine scale, deepfake literacy, and protecting your data — the skills that make you a full stack human.",
+      "When is it okay to use AI for schoolwork, and when does it cross the line? In this unit, you'll think through questions about academic honesty, learn how AI can repeat and spread bias, practice spotting deepfakes, and find out how to protect your personal information.",
     color: "#F0503C",
     softColor: "#FFEBE6",
     emblem: "/img/emblem-ethics.png",
     outcomes: [
-      "Draw your own integrity line — and defend it",
-      "Spot bias, deepfakes, and manipulation tells",
-      "Handle data and attribution like a professional",
+      "Decide when using AI on schoolwork is appropriate and explain your reasoning",
+      "Recognize signs of bias, deepfakes, and misleading content",
+      "Protect your personal data and give credit when you use AI",
     ],
   },
 ];
@@ -75,13 +75,13 @@ export function getLessonBySlug(slug: string): Lesson | undefined {
   return ALL_LESSONS.find((l) => l.slug === slug);
 }
 
+/** Flat ordered list of every lesson, used for prev/next navigation. */
 export const ALL_LESSON_LIST = ALL_LESSONS.slice().sort((a, b) => {
   const ma = MODULES.find((m) => m.slug === a.module)!.order;
   const mb = MODULES.find((m) => m.slug === b.module)!.order;
   return ma - mb || a.index - b.index;
 });
 
-/** Flat ordered list of every lesson — used for prev/next navigation. */
 export function nextLesson(lesson: Lesson): Lesson | null {
   const flat = ALL_LESSON_LIST;
   const i = flat.findIndex((l) => l.slug === lesson.slug && l.module === lesson.module);
