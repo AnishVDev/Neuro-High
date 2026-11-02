@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable} scroll-pt-20`}>
       <body className="grain dotgrid antialiased">
         <ProgressProvider>
           <div className="flex min-h-screen flex-col">
