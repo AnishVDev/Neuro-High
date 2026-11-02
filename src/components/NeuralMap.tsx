@@ -107,19 +107,19 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
     ? layers.find((layer) => layer.mod.slug === nextNode.mod.slug)
     : undefined;
 
-  let novaHint = "Syncing your build…";
+  let novaHint = "Loading your progress…";
 
   if (!loading && !state) {
-    novaHint = "Progress couldn't load. Check this browser's storage settings.";
+    novaHint = "Your progress couldn't load. Check this browser's storage settings.";
   } else if (progressReady && cleared === 0) {
-    novaHint = "Every network starts dark. Clear your first mission to light a neuron.";
+    novaHint = "Complete your first mission to light up your first neuron on the map.";
   } else if (progressReady && !nextNode) {
-    novaHint = "Every neuron is lit. Full stack human, confirmed.";
+    novaHint = "You've completed every mission in the course. Every neuron on the map is lit.";
   } else if (nextNode?.lesson.kind === "boss") {
-    novaHint = "Boss fight next. Keep your combo going to chase the Overclocked badge.";
+    novaHint = "A boss fight is next. Answer several questions correctly in a row to build a combo and earn the Overclocked badge.";
   } else if (nextLayer) {
     const remaining = nextLayer.nodes.filter((node) => !node.done).length;
-    novaHint = `${remaining} more mission${remaining === 1 ? "" : "s"} to energize ${nextLayer.mod.title}.`;
+    novaHint = `${remaining} more mission${remaining === 1 ? "" : "s"} to complete ${nextLayer.mod.title}.`;
   }
 
   const desktopColumns = layers
@@ -131,12 +131,12 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
     .join(" ");
 
   const tape = [
-    "Clear missions",
-    "Light neurons",
+    "Complete missions",
+    "Light up neurons",
     "Build your AI toolkit",
     "Beat the boss fights",
     "Use AI with confidence",
-    "Full stack human",
+    "Think for yourself",
   ];
 
   return (
@@ -166,8 +166,9 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </h2>
 
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-ink/70 sm:text-base">
-              Clear a mission to light a neuron. Finish a module to energize the
-              whole layer. Pick up where you left off—or explore any lesson.
+              Each mission you complete lights up a neuron on the map. Finish
+              every mission in a module to light up the whole layer. You can
+              pick up where you left off or open any lesson you want to explore.
             </p>
           </div>
 
@@ -175,12 +176,12 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             <div className="flex items-center gap-3 self-center rounded-xl border-2 border-ink bg-white p-2 shadow-[3px_3px_0_#171321]">
               <Image
                 src="/img/nova-bot.png"
-                alt="NOVA, your AI copilot"
+                alt="NOVA, your learning guide"
                 width={56}
                 height={56}
                 className="size-14 shrink-0 rounded-lg border-2 border-ink bg-cream object-cover"
               />
-          
+
               <div className="min-w-0">
                 <p className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-coral">
                   NOVA // field note
@@ -210,7 +211,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                       {nextNode.lesson.title}
                     </p>
                     <p className="mt-1 font-mono text-[10px] font-bold uppercase tracking-wider text-ink/60">
-                      {nextNode.lesson.minutes} min · {nextNode.lesson.xp} base XP + combo
+                      {nextNode.lesson.minutes} min · {nextNode.lesson.xp} base XP + combo bonus
                     </p>
                   </div>
                 </div>
@@ -219,7 +220,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                   href={lessonPath(nextNode.lesson)}
                   className="inline-flex shrink-0 items-center gap-2 rounded-xl border-2 border-ink bg-ink px-4 py-3 font-mono text-xs font-bold uppercase tracking-wider text-paper shadow-[3px_3px_0_#171321] transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ink"
                 >
-                  Launch mission
+                  Start mission
                   <ArrowRight className="size-4" aria-hidden="true" />
                 </Link>
               </div>
@@ -229,7 +230,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
               </p>
             ) : state && total > 0 ? (
               <p className="font-display text-xl font-extrabold">
-                ⚡ Network complete. Full stack human confirmed.
+                ⚡ Network complete. You&apos;ve finished every mission in the course.
               </p>
             ) : (
               <p className="font-mono text-sm font-bold">
@@ -252,8 +253,8 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </div>
 
             <p className="max-w-sm text-xs leading-relaxed text-ink/55">
-              Connections show your progress—not prerequisites. Every mission
-              is open.
+              The connections show what you&apos;ve completed so far. They
+              aren&apos;t prerequisites—you can open any mission at any time.
             </p>
           </div>
 
@@ -281,7 +282,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                     transition={{ delay: layerIndex * 0.08, duration: 0.3 }}
                     className="neural-module-card sticker bg-white"
                     style={{ "--neural-accent": layer.mod.color } as CSSProperties}
-                    aria-label={`${layer.mod.title}: ${layer.cleared} of ${layer.nodes.length} missions cleared`}
+                    aria-label={`${layer.mod.title}: ${layer.cleared} of ${layer.nodes.length} missions completed`}
                   >
                     <header className="neural-module-header">
                       <div className="flex items-center justify-between gap-2">
@@ -304,7 +305,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                       <div className="mt-3 flex items-center gap-2">
                         <div
                           className="flex min-w-0 flex-1 gap-1"
-                          aria-label={`${layer.cleared} of ${layer.nodes.length} cleared`}
+                          aria-label={`${layer.cleared} of ${layer.nodes.length} completed`}
                         >
                           {layer.nodes.map((node) => (
                             <span
@@ -377,11 +378,11 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                               onFocus={() => setFocusedSlug(lesson.slug)}
                               onBlur={() => setFocusedSlug(null)}
                               aria-label={`${lesson.title}. ${
-                                isBoss ? "Boss fight." : ""
+                                isBoss ? "Boss fight. " : ""
                               }${
                                 node.done
-                                  ? "Completed. Replay for practice."
-                                  : `${lesson.xp} base XP plus combo bonus.`
+                                  ? "Completed. You can replay it for practice."
+                                  : `${lesson.xp} base XP plus a combo bonus.`
                               }${isNext ? " Recommended next mission." : ""}`}
                               aria-current={isNext ? "step" : undefined}
                               className={rowClasses}
@@ -435,10 +436,10 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
                                 </span>
                                 <span className="neural-mission-meta">
                                   {node.done
-                                    ? "Cleared · replay = 0 XP"
+                                    ? "Completed · replays don't earn XP"
                                     : isBoss
                                       ? `Boss fight · ${lesson.minutes} min · ${lesson.xp} XP`
-                                      : `${lesson.minutes} min · ${lesson.xp} XP + combo`}
+                                      : `${lesson.minutes} min · ${lesson.xp} XP + combo bonus`}
                                 </span>
                               </span>
 
@@ -502,7 +503,7 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
         )}
 
         <p className="bg-paper px-5 py-3 text-center font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-ink/45">
-          Progress saves in this browser · Nothing is locked · Build at your pace
+          Progress is saved in this browser · All missions are open · Learn at your own pace
         </p>
 
         {/* Hover/focus preview */}
@@ -517,8 +518,8 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             <p className="font-mono text-[10px] uppercase tracking-wider text-paper/55">
               {activeNode.mod.title} · {activeNode.lesson.minutes} min ·{" "}
               {activeNode.done
-                ? "Cleared"
-                : `${activeNode.lesson.xp} base XP + combo`}
+                ? "Completed"
+                : `${activeNode.lesson.xp} base XP + combo bonus`}
             </p>
           </div>
         )}
