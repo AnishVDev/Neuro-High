@@ -1,16 +1,32 @@
 // ─── Gamification engine: ranks, badges, XP math (shared client/server) ─────
 
-export type Rank = { name: string; minXp: number; tagline: string };
+export type Rank = {
+  name: string;
+  minXp: number;
+  tagline: string;
+  /** Background color of the rank's icon tile */
+  color: string;
+  /** Color of the built-in fallback icon drawn on the tile */
+  iconColor: string;
+  /** Custom artwork path — files live in /public/images/ranks/ */
+  image: string;
+};
+
+/**
+ * Flip to true once all eight rank images exist in /public/images/ranks/.
+ * While false, each rank uses its own built-in icon instead.
+ */
+export const USE_RANK_IMAGES = false;
 
 export const RANKS: Rank[] = [
-  { name: "Bootloader", minXp: 0, tagline: "System online. Welcome aboard." },
-  { name: "Cipher", minXp: 150, tagline: "You speak a little machine now." },
-  { name: "Operator", minXp: 420, tagline: "Buttons pressed with intent." },
-  { name: "Promptsmith", minXp: 760, tagline: "Words bend to your will." },
-  { name: "Systems Tuner", minXp: 1150, tagline: "You hear the hum beneath." },
-  { name: "Architect", minXp: 1600, tagline: "You design the machine's day." },
-  { name: "Visionary", minXp: 2150, tagline: "Future-facing, guardrails on." },
-  { name: "Singularity", minXp: 2800, tagline: "Full stack human. Certified." },
+  { name: "Bootloader", minXp: 0, tagline: "System online. Welcome aboard.", color: "#EEE8FF", iconColor: "#171321", image: "/images/ranks/bootloader.png" },
+  { name: "Cipher", minXp: 150, tagline: "You speak a little machine now.", color: "#43D9FF", iconColor: "#171321", image: "/images/ranks/cipher.png" },
+  { name: "Operator", minXp: 420, tagline: "Buttons pressed with intent.", color: "#C6F32E", iconColor: "#171321", image: "/images/ranks/operator.png" },
+  { name: "Promptsmith", minXp: 760, tagline: "Words bend to your will.", color: "#FFD645", iconColor: "#171321", image: "/images/ranks/promptsmith.png" },
+  { name: "Systems Tuner", minXp: 1150, tagline: "You hear the hum beneath.", color: "#FF8BD1", iconColor: "#171321", image: "/images/ranks/systems-tuner.png" },
+  { name: "Architect", minXp: 1600, tagline: "You design the machine's day.", color: "#FF6B4A", iconColor: "#171321", image: "/images/ranks/architect.png" },
+  { name: "Visionary", minXp: 2150, tagline: "Future-facing, guardrails on.", color: "#7B5CFF", iconColor: "#FFFFFF", image: "/images/ranks/visionary.png" },
+  { name: "Singularity", minXp: 2800, tagline: "Full stack human. Certified.", color: "#171321", iconColor: "#FFD645", image: "/images/ranks/singularity.png" },
 ];
 
 export function rankFor(xp: number): Rank {
