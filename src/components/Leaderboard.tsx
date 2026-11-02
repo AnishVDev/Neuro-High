@@ -165,7 +165,7 @@ export function LeaderboardPreview() {
               <Trophy className="size-3.5" aria-hidden="true" />
               Leaderboard
             </span>
-            <span className="chip bg-white text-ink/60">Simulated · {LEADERBOARD_SIZE} players</span>
+            <span className="chip bg-white text-ink/60">{LEADERBOARD_SIZE} players</span>
           </div>
           <h3 className="mt-3 font-display text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
             Where you stand
@@ -421,12 +421,6 @@ export function LeaderboardFull() {
           </ul>
         </aside>
       </div>
-
-      <p className="mt-8 max-w-2xl text-xs leading-relaxed text-ink/50">
-        <strong className="text-ink/70">About this leaderboard:</strong> The other players are simulated
-        to give you something to measure against. They aren't real students. Your entry uses your real
-        progress, which is saved in this browser.
-      </p>
     </div>
   );
 }
