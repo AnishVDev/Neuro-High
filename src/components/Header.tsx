@@ -11,7 +11,7 @@ import { rankFor } from "@/lib/gamification";
 const LINKS = [
   { href: "/", label: "Home", icon: House },
   { href: "/#modules", label: "Modules", icon: Rocket },
-  { href: "/dashboard", label: "My Build", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ];
 
