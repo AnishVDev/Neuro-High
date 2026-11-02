@@ -8,7 +8,7 @@ import type { Lesson } from "@/content/types";
 import { useProgress } from "./ProgressProvider";
 import { comboBonus } from "@/lib/gamification";
 
-const CONF_COLORS = [ "#7B5CFF", "#FF6B4A", "#43D9FF", "#C6F32E", "#FFD645", "#FF8BD1" ];
+const CONF_COLORS = ["#7B5CFF", "#FF6B4A", "#43D9FF", "#C6F32E", "#FFD645", "#FF8BD1"];
 
 export default function CheckpointQuiz({ lesson }: { lesson: Lesson }) {
   const { complete, isCompleted, completion } = useProgress();
