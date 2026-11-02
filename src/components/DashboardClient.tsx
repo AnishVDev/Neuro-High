@@ -12,7 +12,7 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
-const GREEN_GRADIENT = "linear-gradient(90deg, #059669 0%, #10B981 45%, #C6F32E 100%)";
+const LIME = "#C6F32E";
 
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
@@ -66,7 +66,7 @@ export default function DashboardClient() {
               className="h-full rounded-full transition-all"
               style={{
                 width: `${(done / TOTAL_LESSONS) * 100}%`,
-                background: GREEN_GRADIENT,
+                background: LIME,
               }}
             />
           </div>
@@ -144,16 +144,13 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      {/* Guarantees the green gradient overrides any internal XpBar styling */}
+      {/* Forces the XpBar fill to the solid site lime, overriding any internal gradient */}
       <style>{`
         .xp-card-wrapper [style*="width"],
         .xp-card-wrapper [role="progressbar"] > div,
         .xp-card-wrapper .bar-fill {
-          background-image: ${GREEN_GRADIENT} !important;
-          background-color: #10B981 !important;
-          --tw-gradient-from: #059669 !important;
-          --tw-gradient-to: #C6F32E !important;
-          --tw-gradient-stops: #059669, #10B981, #C6F32E !important;
+          background-image: none !important;
+          background-color: ${LIME} !important;
         }
       `}</style>
     </div>
