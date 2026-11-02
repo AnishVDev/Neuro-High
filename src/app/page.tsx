@@ -134,8 +134,8 @@ export default function HomePage() {
       </section>
 
       {/* ─── MODULES ──────────────────────────────────────────── */}
-      <section id="modules" className="scroll-mt-20 border-y-2 border-ink bg-white py-16 lg:py-20">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+      <section className="border-y-2 border-ink bg-white py-16 lg:py-20">
+        <div id="modules" className="mx-auto max-w-6xl scroll-mt-24 px-4 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-vio">The curriculum</p>
