@@ -12,8 +12,7 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
-const PROGRESS_GREEN = "#C4A7F5";
-const XP_PURPLE = "#C4A7F5";
+const PROGRESS_PURPLE = "#C4A7F5";
 
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
@@ -40,7 +39,7 @@ export default function DashboardClient() {
           <span className="chip bg-white text-ink/60">agent on record</span>
         </div>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-          Keep track of your codename, XP, badges, and your  across the neural
+          Keep track of your codename, XP, badges, and your progress across the neural
           network map. Everything here updates as you complete missions and challenges.
         </p>
       </motion.div>
@@ -67,7 +66,7 @@ export default function DashboardClient() {
               className="h-full rounded-full transition-all"
               style={{
                 width: `${(done / TOTAL_LESSONS) * 100}%`,
-                backgroundColor: _GREEN,
+                backgroundColor: PROGRESS_PURPLE,
               }}
             />
           </div>
@@ -145,12 +144,12 @@ export default function DashboardClient() {
         </div>
       </div>
 
-      {/* Keep the XP bar fill solid light purple, even if XpBar applies a gradient */}
+      {/* Keep the XP bar fill solid light purple */}
       <style>{`
         .xp-card-wrapper [style*="width"],
         .xp-card-wrapper [role="progressbar"] > div,
         .xp-card-wrapper .bar-fill {
-          background-color: ${XP_PURPLE} !important;
+          background-color: ${PROGRESS_PURPLE} !important;
           background-image: none !important;
         }
       `}</style>
