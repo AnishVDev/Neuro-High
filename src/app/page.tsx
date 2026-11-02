@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bot, BrainCircuit, Compass, Gamepad2, GraduationCap, Wrench } from "lucide-react";
+import { Bot, BrainCircuit, Compass, Gamepad2, GraduationCap, Trophy, Wrench } from "lucide-react";
 import NeuralCanvas from "@/components/NeuralCanvas";
 import Marquee from "@/components/Marquee";
 import ModuleCard from "@/components/ModuleCard";
 import StartCta from "@/components/StartCta";
-import NeuralMap from "@/components/NeuralMap";
+import { LeaderboardPreview } from "@/components/Leaderboard";
 import { MODULES, MAX_XP, TOTAL_LESSONS } from "@/content";
 
 const PILLARS = [
@@ -166,13 +166,14 @@ export default function HomePage() {
               Instead of a standard progress bar, your progress is shown as a neural network. Each
               lesson you complete activates a neuron, and finishing a module lights up a full layer.
               When you complete the course, the whole network is active, showing the concepts you've
-              learned.
+              learned. You can see your full network on your dashboard.
             </p>
             <ul className="mt-6 space-y-3">
               {[
                 [Gamepad2, "Streaks earn bonus XP", "Answer several questions correctly in a row during a challenge to multiply your points."],
                 [Bot, "Badges as you go", "You earn badges by finishing activities and quizzes. NOVA lets you know as soon as you earn one."],
                 [GraduationCap, "Ranks show your growth", "Earn XP to move up eight ranks, from Bootloader to Singularity."],
+                [Trophy, "See where you stand", "Your XP places you on a simulated leaderboard of 500 players. Reset your progress and the board reshuffles."],
               ].map(([Icon, t, d]) => (
                 <li key={String(t)} className="flex items-start gap-3">
                   <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-ink bg-sun shadow-[2.5px_2.5px_0_#171321]">
@@ -192,7 +193,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <NeuralMap compact />
+          <LeaderboardPreview />
         </div>
       </section>
 
