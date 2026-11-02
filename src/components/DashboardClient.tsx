@@ -55,7 +55,7 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Missions cleared <Target className="size-8 shrink-0 text-vio" strokeWidth={2.4} />
+            Missions cleared <Target className="size-10 shrink-0 text-vio" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {done}<span className="text-ink/30">/{TOTAL_LESSONS}</span>
@@ -72,7 +72,7 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Badges <Award className="size-8 shrink-0 text-sun" strokeWidth={2.4} />
+            Badges <Award className="size-10 shrink-0 text-sun" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {badges}<span className="text-ink/30">/{BADGES.length}</span>
@@ -83,7 +83,7 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Day streak <Flame className="size-8 shrink-0 text-coral" strokeWidth={2.4} />
+            Day streak <Flame className="size-10 shrink-0 text-coral" strokeWidth={2.4} />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {streak}<span className="text-lg text-ink/30"> day{streak === 1 ? "" : "s"}</span>
