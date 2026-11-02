@@ -12,6 +12,8 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
+const GREEN_GRADIENT = "linear-gradient(90deg, #059669 0%, #10B981 45%, #C6F32E 100%)";
+
 export default function DashboardClient() {
   const { state, loading, reset } = useProgress();
   const [confirmReset, setConfirmReset] = useState(false);
@@ -26,7 +28,7 @@ export default function DashboardClient() {
       {/* header */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
         <p className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-vio">
-          <LayoutDashboard className="size-4" /> Mission control
+          <LayoutDashboard className="-my-0.5 size-5 shrink-0" /> Mission control
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           {loading ? (
@@ -37,9 +39,8 @@ export default function DashboardClient() {
           <span className="chip bg-white text-ink/60">agent on record</span>
         </div>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-          This is where you can track your progress: your codename, your XP, the badges you've
-          earned, and the neural network that grows as you complete lessons. Everything here
-          reflects work you've actually done.
+          Keep track of your codename, XP, badges, and your progress across the neural
+          network map. Everything here updates as you complete missions and challenges.
         </p>
       </motion.div>
 
@@ -50,12 +51,12 @@ export default function DashboardClient() {
         transition={{ delay: 0.06 }}
         className="mt-8 grid gap-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr]"
       >
-        <div className="sticker bg-white p-5 lg:col-span-1">
+        <div className="sticker xp-card-wrapper bg-white p-5 lg:col-span-1">
           <XpBar tall />
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Missions cleared <Target className="size-9 shrink-0 text-vio" strokeWidth={2.4} />
+            Missions cleared <Target className="-my-0.5 size-9 shrink-0 text-vio" />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {done}<span className="text-ink/30">/{TOTAL_LESSONS}</span>
@@ -65,14 +66,14 @@ export default function DashboardClient() {
               className="h-full rounded-full transition-all"
               style={{
                 width: `${(done / TOTAL_LESSONS) * 100}%`,
-                background: "linear-gradient(90deg, #7B5CFF 0%, #0EA8CC 100%)",
+                background: GREEN_GRADIENT,
               }}
             />
           </div>
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Badges <Award className="size-9 shrink-0 text-sun" strokeWidth={2.4} />
+            Badges <Award className="-my-0.5 size-9 shrink-0 text-sun" />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {badges}<span className="text-ink/30">/{BADGES.length}</span>
@@ -83,7 +84,7 @@ export default function DashboardClient() {
         </div>
         <div className="sticker flex flex-col justify-between bg-white p-5">
           <p className="flex items-center justify-between font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-ink/50">
-            Day streak <Flame className="size-9 shrink-0 text-coral" strokeWidth={2.4} />
+            Day streak <Flame className="-my-0.5 size-9 shrink-0 text-coral" />
           </p>
           <p className="font-display text-4xl font-extrabold text-ink">
             {streak}<span className="text-lg text-ink/30"> day{streak === 1 ? "" : "s"}</span>
@@ -122,7 +123,7 @@ export default function DashboardClient() {
           </p>
           {!confirmReset ? (
             <button onClick={() => setConfirmReset(true)} className="btn btn-ghost !py-2 !text-[10px] text-ink/60">
-              <RotateCcw className="size-3.5" /> Reset progress
+              <RotateCcw className="-my-0.5 size-4 shrink-0" /> Reset progress
             </button>
           ) : (
             <div className="flex gap-2">
@@ -133,7 +134,7 @@ export default function DashboardClient() {
                 }}
                 className="btn btn-coral !py-2 !text-[10px]"
               >
-                <Trash2 className="size-3.5" /> Yes, wipe it
+                <Trash2 className="-my-0.5 size-4 shrink-0" /> Yes, wipe it
               </button>
               <button onClick={() => setConfirmReset(false)} className="btn btn-ghost !py-2 !text-[10px]">
                 Keep my build
@@ -142,6 +143,19 @@ export default function DashboardClient() {
           )}
         </div>
       </div>
+
+      {/* Guarantees the green gradient overrides any internal XpBar styling */}
+      <style>{`
+        .xp-card-wrapper [style*="width"],
+        .xp-card-wrapper [role="progressbar"] > div,
+        .xp-card-wrapper .bar-fill {
+          background-image: ${GREEN_GRADIENT} !important;
+          background-color: #10B981 !important;
+          --tw-gradient-from: #059669 !important;
+          --tw-gradient-to: #C6F32E !important;
+          --tw-gradient-stops: #059669, #10B981, #C6F32E !important;
+        }
+      `}</style>
     </div>
   );
 }
