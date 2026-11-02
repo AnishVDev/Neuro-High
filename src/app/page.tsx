@@ -41,7 +41,7 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-[1.25fr_1fr] lg:pb-20 lg:pt-20">
           <div>
             <div className="flex flex-wrap gap-2">
-              <span className="chip bg-sun text-ink">AI literacy · grades 9–12</span>
+              <span className="chip bg-sun text-ink">AI literacy · grades 9-12</span>
               <span className="chip bg-white text-ink/70">free · no account needed</span>
             </div>
             <h1 className="mt-5 font-display text-[clamp(2.9rem,7.5vw,5.6rem)] font-extrabold leading-[0.95] tracking-tight text-ink">
