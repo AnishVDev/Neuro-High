@@ -83,7 +83,7 @@ export default function HomePage() {
           {/* NOVA */}
           <div className="relative mx-auto w-fit">
             <div className="absolute -left-6 top-2 z-10 hidden max-w-[190px] -rotate-3 rounded-2xl border-2 border-ink bg-white p-3 font-mono text-[11px] font-bold leading-snug text-ink shadow-[3px_3px_0_#171321] sm:block lg:-left-8">
-              psst — mission one takes 6 minutes. you&apos;ll outsmart most adults by lunch.
+              psst — mission one takes 6 minutes. you'll outsmart most adults by lunch.
               <span className="absolute -right-1.5 top-8 size-3 rotate-45 border-b-2 border-r-2 border-ink bg-white" />
             </div>
             <Image
@@ -107,10 +107,10 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
         <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-coral">The whole point</p>
         <h2 className="mt-2 max-w-2xl font-display text-4xl font-extrabold leading-[1.02] tracking-tight text-ink sm:text-5xl">
-          Three skills for the decade you&apos;re graduating into
+          Three skills for the decade you're graduating into
         </h2>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-ink/70">
-          Every adult you know is improvising their AI literacy. You get the actual owner&apos;s
+          Every adult you know is improvising their AI literacy. You get the actual owner's
           manual — the tech, the techniques, and the ethics — in one sitting-length course.
         </p>
         <div className="mt-9 grid gap-5 md:grid-cols-3">
@@ -199,7 +199,7 @@ export default function HomePage() {
       <section className="border-t-2 border-ink bg-vio px-4 py-14 text-center text-white sm:px-6">
         <p className="mx-auto max-w-3xl font-display text-3xl font-extrabold leading-tight sm:text-4xl">
           “The AI you use is a prediction engine. Learn its gears — then drive it,
-          don&apos;t let it drive <span className="text-sun">you</span>.”
+          don't let it drive <span className="text-sun">you</span>.”
         </p>
         <p className="mt-4 font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-white/70">
           the neuro//high working agreement
