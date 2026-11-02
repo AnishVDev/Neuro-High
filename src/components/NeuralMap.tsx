@@ -253,8 +253,8 @@ export default function NeuralMap({ compact = false }: { compact?: boolean }) {
             </div>
 
             <p className="max-w-sm text-xs leading-relaxed text-ink/55">
-              The connections show what you&apos;ve completed so far. They
-              aren&apos;t prerequisites—you can open any mission at any time.
+              The connections show what you've completed so far. They
+              aren't prerequisites so you can open any mission at any time.
             </p>
           </div>
 
