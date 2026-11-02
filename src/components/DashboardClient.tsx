@@ -87,7 +87,10 @@ export default function DashboardClient() {
         </div>
       </motion.div>
 
-      {/* temp */}
+      {/* neural map */}
+      <div className="mt-8">
+        <NeuralMap />
+      </div>
 
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
