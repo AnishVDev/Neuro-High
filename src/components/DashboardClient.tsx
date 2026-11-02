@@ -12,7 +12,7 @@ import { ALL_LESSON_LIST, MODULES, TOTAL_LESSONS } from "@/content";
 import { BADGES } from "@/lib/gamification";
 import { useProgress } from "@/components/ProgressProvider";
 
-const PROGRESS_GREEN = "#98C720";
+const PROGRESS_GREEN = "#C4A7F5";
 const XP_PURPLE = "#C4A7F5";
 
 export default function DashboardClient() {
@@ -40,7 +40,7 @@ export default function DashboardClient() {
           <span className="chip bg-white text-ink/60">agent on record</span>
         </div>
         <p className="mt-2 max-w-xl text-sm leading-relaxed text-ink/65">
-          Keep track of your codename, XP, badges, and your progress across the neural
+          Keep track of your codename, XP, badges, and your  across the neural
           network map. Everything here updates as you complete missions and challenges.
         </p>
       </motion.div>
@@ -67,7 +67,7 @@ export default function DashboardClient() {
               className="h-full rounded-full transition-all"
               style={{
                 width: `${(done / TOTAL_LESSONS) * 100}%`,
-                backgroundColor: PROGRESS_GREEN,
+                backgroundColor: _GREEN,
               }}
             />
           </div>
