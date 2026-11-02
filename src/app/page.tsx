@@ -55,9 +55,12 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mt-5 max-w-xl text-[16.5px] leading-relaxed text-ink/75">
-              This course explains what AI is and how it works, shows you how to use it effectively,
-              and covers how to use it responsibly. Each lesson includes hands-on practice and a short
-              quiz. As you finish lessons, <strong className="text-ink">your progress builds a neural network diagram.</strong>
+              In this course, you'll learn how AI systems work, how to use them
+              effectively, and how to use them responsibly. Every lesson includes a
+              hands-on activity and a short quiz. As you finish lessons,{" "}
+              <strong className="text-ink">
+                you earn XP, unlock badges, and move up the ranks.
+              </strong>
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <StartCta className="btn btn-primary !px-7 !py-3.5 !text-sm" />
