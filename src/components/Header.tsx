@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BrainCircuit, Flame, House, LayoutDashboard, Menu, Rocket, X, Zap } from "lucide-react";
+import { BrainCircuit, Flame, House, LayoutDashboard, Menu, Rocket, Trophy, X, Zap } from "lucide-react";
 import { useProgress } from "./ProgressProvider";
 import { rankFor } from "@/lib/gamification";
 
@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/", label: "Home", icon: House },
   { href: "/#modules", label: "Modules", icon: Rocket },
   { href: "/dashboard", label: "My Build", icon: LayoutDashboard },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ];
 
 export default function Header() {
