@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bot, BrainCircuit, Compass, Gamepad2, GraduationCap, Wrench } from "lucide-react";
+import { Bot, BrainCircuit, Compass, Gamepad2, GraduationCap, Trophy, Wrench } from "lucide-react";
 import NeuralCanvas from "@/components/NeuralCanvas";
 import Marquee from "@/components/Marquee";
 import ModuleCard from "@/components/ModuleCard";
 import StartCta from "@/components/StartCta";
-import Leaderboard from "@/components/Leaderboard";
+import { LeaderboardPreview } from "@/components/Leaderboard";
 import { MODULES, MAX_XP, TOTAL_LESSONS } from "@/content";
 
 const PILLARS = [
@@ -41,7 +41,7 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pb-16 pt-14 sm:px-6 lg:grid-cols-[1.25fr_1fr] lg:pb-20 lg:pt-20">
           <div>
             <div className="flex flex-wrap gap-2">
-              <span className="chip bg-sun text-ink">AI literacy · grades 9–12</span>
+              <span className="chip bg-sun text-ink">AI literacy · grades 9-12</span>
               <span className="chip bg-white text-ink/70">free · no account needed</span>
             </div>
             <h1 className="mt-5 font-display text-[clamp(2.9rem,7.5vw,5.6rem)] font-extrabold leading-[0.95] tracking-tight text-ink">
@@ -55,7 +55,7 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mt-5 max-w-xl text-[16.5px] leading-relaxed text-ink/75">
-              In this course, you&apos;ll learn how AI systems work, how to use them
+              In this course, you'll learn how AI systems work, how to use them
               effectively, and how to use them responsibly. Every lesson includes a
               hands-on activity and a short quiz. As you finish lessons,{" "}
               <strong className="text-ink">
@@ -108,7 +108,7 @@ export default function HomePage() {
 
       {/* ─── PILLARS ──────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
-        <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-coral">What you&apos;ll learn</p>
+        <p className="font-mono text-[11px] font-bold uppercase tracking-[0.3em] text-coral">What you'll learn</p>
         <h2 className="mt-2 max-w-2xl font-display text-4xl font-extrabold leading-[1.02] tracking-tight text-ink sm:text-5xl">
           Three skills for using AI well
         </h2>
@@ -168,14 +168,15 @@ export default function HomePage() {
             <p className="mt-4 text-[15px] leading-relaxed text-ink/75">
               Instead of a standard progress bar, your progress is shown as a neural network. Each
               lesson you complete activates a neuron, and finishing a module lights up a full layer.
-              When you complete the course, the whole network is active, showing the concepts you&apos;ve
-              learned.
+              When you complete the course, the whole network is active, showing the concepts you've
+              learned. You can see your full network on your dashboard.
             </p>
             <ul className="mt-6 space-y-3">
               {[
                 [Gamepad2, "Streaks earn bonus XP", "Answer several questions correctly in a row during a challenge to multiply your points."],
                 [Bot, "Badges as you go", "You earn badges by finishing activities and quizzes. NOVA lets you know as soon as you earn one."],
                 [GraduationCap, "Ranks show your growth", "Earn XP to move up eight ranks, from Bootloader to Singularity."],
+                [Trophy, "See where you stand", "Your XP places you on a simulated leaderboard of 500 players. Reset your progress and the board reshuffles."],
               ].map(([Icon, t, d]) => (
                 <li key={String(t)} className="flex items-start gap-3">
                   <span className="grid size-9 shrink-0 place-items-center rounded-lg border-2 border-ink bg-sun shadow-[2.5px_2.5px_0_#171321]">
@@ -195,8 +196,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-
-          <Leaderboard preview />
+          <LeaderboardPreview />
         </div>
       </section>
 
