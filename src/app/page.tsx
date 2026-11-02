@@ -50,7 +50,7 @@ export default function HomePage() {
               <span className="text-outline">math</span>
               <br />
               <span className="relative inline-block">
-                <span className="relative z-10">you can learn.</span>
+                <span className="relative z-10">you can learn</span>
                 <span className="absolute inset-x-0 bottom-1 z-0 h-[0.45em] -rotate-1 bg-lime" aria-hidden />
               </span>
             </h1>
